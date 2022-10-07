@@ -1,0 +1,3 @@
+Work In progress...
+
+I still need to add sprites, improve user interface, and also add other features like scripting to make different game mechanics.
