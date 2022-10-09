@@ -8,6 +8,7 @@ public class Camera implements KeyListener {
 	public boolean left, right, forward, back;
 	public final double MOVE_SPEED = .04;
 	public final double ROTATION_SPEED = .02;
+	public double player_degree = 0;
 	
 	public Camera(double x, double y, double xd, double yd, double xp, double yp) {
 		xPos = x;
@@ -16,6 +17,7 @@ public class Camera implements KeyListener {
 		yDir = yd;
 		xPlane = xp;
 		yPlane = yp;
+		player_degree = Math.toDegrees(Math.atan2(yDir, xDir))+180;
 	}
 
 	@Override
@@ -77,6 +79,7 @@ public class Camera implements KeyListener {
 			double oldxPlane = xPlane;
 			xPlane=xPlane*Math.cos(-ROTATION_SPEED) - yPlane*Math.sin(-ROTATION_SPEED);
 			yPlane=oldxPlane*Math.sin(-ROTATION_SPEED) + yPlane*Math.cos(-ROTATION_SPEED);
+			player_degree = Math.toDegrees(Math.atan2(yDir, xDir))+180; // gives me current degree player is facing
 		}
 		if(left) {
 			double oldxDir=xDir;
@@ -85,6 +88,7 @@ public class Camera implements KeyListener {
 			double oldxPlane = xPlane;
 			xPlane=xPlane*Math.cos(ROTATION_SPEED) - yPlane*Math.sin(ROTATION_SPEED);
 			yPlane=oldxPlane*Math.sin(ROTATION_SPEED) + yPlane*Math.cos(ROTATION_SPEED);
+			player_degree = Math.toDegrees(Math.atan2(yDir, xDir))+180; // gives me current degree player is facing
 		}
 	}
 	

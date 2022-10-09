@@ -18,10 +18,10 @@ import java.util.AbstractMap.SimpleEntry;
 public class Game extends JFrame implements Runnable{
 	
 	private static final long serialVersionUID = 1L;
-	public String bgm_path = "C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\test.wav";
+	public String bgm_path = "C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\dire.wav";
 	public static int WID = 800;
 	public static int HEI = 600;
-	public int fog_col = 0xF2CDCD; 
+	public int fog_col = 0x93ABFF; 
 	public int ground_color = Color.DARK_GRAY.getRGB();
 	private int retro_feel = 5;
 	private int TEX_MAX = 800;
@@ -35,19 +35,21 @@ public class Game extends JFrame implements Runnable{
 	public static int[][] map = 
 		{ // special values: 0 -> no wall at all, nothing
 				// 999: invisible wall
-				{  1,   1,   1,   1,   1,   1,   1,   1,   1},
-				{  1, 999,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   446,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   9,   0,   3,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0, 529,   0,   0,   0,   0,   0,   1},
-				{  1,   1,   1,   1,   1,   1,   1,   1,   1}
+			    {  1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1}
 		};
 		public int mapWidth = map[0].length;
 		public int mapHeight = map.length;
@@ -56,8 +58,8 @@ public class Game extends JFrame implements Runnable{
 		image = new BufferedImage(WID, HEI, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 		init_textures_for_render(); 
-		camera = new Camera(5.5, 6.5, 1, 0, 0, -.66);
-		screen = new Screen(map, mapWidth, mapHeight, textures, WID, HEI, retro_feel, fog_col, ground_color, Texture.skybox);
+		camera = new Camera(2.0, 2.0, 1, 0, 0, -.66);
+		screen = new Screen(map, mapWidth, mapHeight, textures, WID, HEI, retro_feel, fog_col, ground_color, Texture.skybox23);
 		new Sound(bgm_path);
 		addKeyListener(camera);
 		setSize(WID, HEI);
@@ -73,7 +75,7 @@ public class Game extends JFrame implements Runnable{
 	// Here we can init all the textures to each cell
 	public void init_textures_for_render() {
 		ArrayList<SimpleEntry<Integer, Texture>> index_to_texture_array = new ArrayList<SimpleEntry<Integer, Texture>>();
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(1, Texture.null_texture));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(1, Texture.distant));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(3, Texture.null_texture2));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(5, Texture.null_texture2));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(7, Texture.null_texture2));
@@ -83,7 +85,7 @@ public class Game extends JFrame implements Runnable{
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(427, Texture.null_texture2));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(529, Texture.null_texture2));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(627, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(446, Texture.tall_wall));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(6, Texture.city));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(9, Texture.lain));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(41, Texture.distant));
 		textures = new ArrayList<Texture>(TEX_MAX);

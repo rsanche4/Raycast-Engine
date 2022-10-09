@@ -15,7 +15,7 @@ public class Screen {
 	public int mapWidth, mapHeight, width, height;
 	public ArrayList<Texture> textures;
 	public int pixel_effect;
-	public int render_dist = 10;
+	public int render_dist = 20;
 	public int fog_color;
 	public int ground_color;
 	public Texture sky;
@@ -38,24 +38,34 @@ public class Screen {
 	public int[] update(Camera camera, int[] pixels) {
 		
 		// draws skybox
-		double row=0;
+		double row=-1.0;
 		double max_row = height/2;
 		int new_fog_color_ceiling=0;
 		double fog_perc = 0;
+		int skybox_x = -1;
+		int skybox_y = -1;
+		int rotate_sky = (int)(((360-camera.player_degree) / 360.0)*sky.W_SKYSIZE);
 		for (int n=0; n < pixels.length/2; n=n+pixel_effect) {
 			// adding fog 
 			if (n % width == 0 && row < max_row) {
+				skybox_x = rotate_sky;
+				skybox_y++;
 				row++;
 				fog_perc = row/max_row;
+			} else if (row > max_row) {
+				break;
 			}
-				int rc = (int)((fog_perc)*((fog_color & 0xFF0000) >> 16) + (1-fog_perc)*((sky.sky_pixels[n] & 0xFF0000) >> 16));
-	            int gc = (int)((fog_perc)*((fog_color & 0xFF00) >> 8) + (1-fog_perc)*((sky.sky_pixels[n] & 0xFF00) >> 8));
-	            int bc = (int)((fog_perc)*((fog_color & 0xFF)) + (1-fog_perc)*((sky.sky_pixels[n] & 0xFF)));
+			//if (skybox_y == 0) {System.out.println(skybox_x + sky.W_SKYSIZE*skybox_y);}
+				int rc = (int)((fog_perc)*((fog_color & 0xFF0000) >> 16) + (1-fog_perc)*((sky.sky_pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF0000) >> 16));
+	            int gc = (int)((fog_perc)*((fog_color & 0xFF00) >> 8) + (1-fog_perc)*((sky.sky_pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF00) >> 8));
+	            int bc = (int)((fog_perc)*((fog_color & 0xFF)) + (1-fog_perc)*((sky.sky_pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF)));
 	            new_fog_color_ceiling = ((rc&0x0ff)<<16)|((gc&0x0ff)<<8)|(bc&0x0ff);
 	            for (int i=0; i<pixel_effect; i++) pixels[n+i] = new_fog_color_ceiling;
+	            skybox_x+=pixel_effect;
 			
 		}
 		
+		// drawing floor
 		row = height/2;
 		max_row = height/2;
 		int new_fog_color_floor=fog_color;
@@ -177,14 +187,6 @@ public class Screen {
 	      //add a texture to all sides (up to 99)
 	        int texNum = map[mapX][mapY] - 1;
 	        double wallX;//Exact position of where wall was hit
-	        if(side==1) {//If its a y-axis wall
-	            wallX = (camera.xPos + ((mapY - camera.yPos + (1 - stepY) / 2) / rayDirY) * rayDirX);
-	        } 
-	        else {//X-axis wall
-	            wallX = (camera.yPos + ((mapX - camera.xPos + (1 - stepX) / 2) / rayDirX) * rayDirY);
-	        }
-	        wallX-=Math.floor(wallX);
-	        
 	        // textures to 2 sides, or 1 side if within these ranges
 	        if ((map[mapX][mapY] > 99 && map[mapX][mapY] < 200 && side==0) 
 	        		|| (map[mapX][mapY] > 499 && map[mapX][mapY] < 700 && side==0)
@@ -193,6 +195,15 @@ public class Screen {
 	        		|| (map[mapX][mapY] > 399 && map[mapX][mapY] < 500 && playerX < mapX)       
 	        		|| (map[mapX][mapY] > 499 && map[mapX][mapY] < 600 && playerY > mapY)        
 	        		|| (map[mapX][mapY] > 599 && map[mapX][mapY] < 700 && playerY < mapY)) wallX =0.0;
+	        else if(side==1) {//If its a y-axis wall
+	            wallX = (camera.xPos + ((mapY - camera.yPos + (1 - stepY) / 2) / rayDirY) * rayDirX);
+	        } 
+	        else {//X-axis wall
+	            wallX = (camera.yPos + ((mapX - camera.xPos + (1 - stepX) / 2) / rayDirX) * rayDirY);
+	        }
+	        wallX-=Math.floor(wallX);
+	        
+	       
 	       
 	      //x coordinate on the texture
 	        int texX = (int)(wallX * (textures.get(texNum).SIZE));
@@ -218,12 +229,16 @@ public class Screen {
 		            color = ((rc&0x0ff)<<16)|((gc&0x0ff)<<8)|(bc&0x0ff);
 		            for (int i=0; i<pixel_effect; i++) pixels[(x+i) + y*(width)] = color;	
 	            
-	        
 	        }
 	        
-	     
+	      
 	        // for adding sprite, just go here and simply get the distance of it, and use this exact logic to draw each stripe
 	    	
+	        
+	        //ManageUserScript();
+	        // After sprites are drawn, here we call ManageUserScript(), which is the code written by 
+	        //the user of the program this will draw extra stuff on screen, or change the map, 
+	        // variables handled by the user, etc
 	    }
 	    return pixels;
 	    
