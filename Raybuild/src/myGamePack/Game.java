@@ -24,6 +24,8 @@ public class Game extends JFrame implements Runnable{
 	public int fog_col = 0x93ABFF; 
 	public int ground_color = Color.DARK_GRAY.getRGB();
 	private int retro_feel = 5;
+	private int numberSprites = 0;
+	private Sprite[] spriteArray;
 	private int TEX_MAX = 800;
 	private Thread thread;
 	private boolean running;
@@ -40,8 +42,12 @@ public class Game extends JFrame implements Runnable{
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   6,   0,   6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   6,   0,   6,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   6,   6,   6,   0,   0,   0,   0,   0,   0,   0,   0, 755,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
@@ -49,6 +55,11 @@ public class Game extends JFrame implements Runnable{
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0, 755,   0,   1},
 				{  1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1,   1}
 		};
 		public int mapWidth = map[0].length;
@@ -59,7 +70,7 @@ public class Game extends JFrame implements Runnable{
 		pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 		init_textures_for_render(); 
 		camera = new Camera(2.0, 2.0, 1, 0, 0, -.66);
-		screen = new Screen(map, mapWidth, mapHeight, textures, WID, HEI, retro_feel, fog_col, ground_color, Texture.skybox23);
+		screen = new Screen(map, mapWidth, mapHeight, textures, WID, HEI, retro_feel, fog_col, ground_color, Texture.skybox23, numberSprites, spriteArray);
 		new Sound(bgm_path);
 		addKeyListener(camera);
 		setSize(WID, HEI);
@@ -76,23 +87,27 @@ public class Game extends JFrame implements Runnable{
 	public void init_textures_for_render() {
 		ArrayList<SimpleEntry<Integer, Texture>> index_to_texture_array = new ArrayList<SimpleEntry<Integer, Texture>>();
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(1, Texture.distant));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(3, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(5, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(7, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(129, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(227, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(329, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(427, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(529, Texture.null_texture2));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(627, Texture.null_texture2));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(6, Texture.city));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(9, Texture.lain));
-		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(41, Texture.distant));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(755, Texture.sprite));
 		textures = new ArrayList<Texture>(TEX_MAX);
 		while(textures.size() < TEX_MAX) textures.add(Texture.null_texture);
 		for (SimpleEntry<Integer, Texture> index_to_text : index_to_texture_array) {
 			textures.set(index_to_text.getKey()-1, index_to_text.getValue());
 		}
+		Sprite[] tempSpriteArray = new Sprite[100];
+		for (int row = 0; row < mapHeight; row++) {
+			for (int col = 0; col < mapWidth; col++) {
+				if (map[row][col] > 699 && map[row][col] < 800) {
+					tempSpriteArray[numberSprites] = new Sprite(row, col);
+					numberSprites++;// count how many sprites are on the map. Limit to 100
+				}
+			} 
+		}
+		spriteArray = new Sprite[numberSprites];
+		for (int k=0; k < numberSprites; k++) {
+			spriteArray[k] = tempSpriteArray[k];
+		}
+		
 	}
 	
 	private synchronized void start() {

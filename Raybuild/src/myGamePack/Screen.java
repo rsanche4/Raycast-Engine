@@ -1,6 +1,7 @@
 package myGamePack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.ImageIcon;
 
@@ -16,11 +17,14 @@ public class Screen {
 	public ArrayList<Texture> textures;
 	public int pixel_effect;
 	public int render_dist = 20;
+	public int sprite_render_dist = 15*render_dist;
 	public int fog_color;
 	public int ground_color;
+	public int numSprites;
+	Sprite[] spriteArr;
 	public Texture sky;
 	
-	public Screen(int[][] m, int mapW, int mapH, ArrayList<Texture> tex, int w, int h, int pixEf, int fogc, int ground_c, Texture skybox) {
+	public Screen(int[][] m, int mapW, int mapH, ArrayList<Texture> tex, int w, int h, int pixEf, int fogc, int ground_c, Texture skybox, int ns, Sprite[] sa) {
 		map = m;
 		mapWidth = mapW;
 		mapHeight = mapH;
@@ -31,9 +35,10 @@ public class Screen {
 		fog_color = fogc;
 		ground_color = ground_c;
 		sky = skybox;
+		numSprites = ns;
+		spriteArr = sa;
 		
 	}
-
 	
 	public int[] update(Camera camera, int[] pixels) {
 		
@@ -85,8 +90,9 @@ public class Screen {
 	        
 	    }
 	    
+	    double[] perp_wall_dist_buffer = new double[width];
 	    for (int x=0; x<width; x=x+pixel_effect) {
-	        double cameraX = 2 * x / (double)(width) -1;
+	    	double cameraX = 2 * x / (double)(width) -1;
 	        
 	        double rayDirX = camera.xDir + camera.xPlane * cameraX; 
 	        
@@ -130,7 +136,6 @@ public class Screen {
 	            sideDistY = (mapY + 1.0 - camera.yPos) * deltaDistY;
 	        }
 	        
-	      //Loop to find where the ray hits a wall
 	        while(!hit) {
 	            //Jump to next square
 	            if (sideDistX < sideDistY)
@@ -146,9 +151,16 @@ public class Screen {
 	                side = 1;
 	            }
 	            //Check if ray has hit a wall (if ray hits 999, that is an invisible wall, not a hit)
-	            if(map[mapX][mapY] > 0 && map[mapX][mapY] < 999) hit = true;
-	             
+	         // if this ray hit a sprite, then ignore it because that is not a hit (sprites are 700 to 998)
+	            if(map[mapX][mapY] > 0 && map[mapX][mapY] < 700) hit = true;
+	            //if (map[mapX][mapY] > 699 && map[mapX][mapY] < 800) {
+	            //	spriteXPos = mapX;
+	            //	spriteYPos = mapY;
+	            	
+	            //}
 	        }
+	        
+	        
 	        
 	      //this tries to find the taller wall structures
 	        boolean tall_wall = false; // if texture is EVEN on map, then it's tall, odd is short
@@ -162,6 +174,8 @@ public class Screen {
 	        else
 	            perpWallDist = Math.abs((mapY - camera.yPos + (1 - stepY) / 2) / rayDirY);
 	        
+	        // add it to distance buffer
+	        for (int i=0; i<pixel_effect; i++) perp_wall_dist_buffer[x+i] = perpWallDist;
 	        
 	        
 	        //Now calculate the height of the wall based on the distance from the camera
@@ -231,15 +245,84 @@ public class Screen {
 	            
 	        }
 	        
-	      
-	        // for adding sprite, just go here and simply get the distance of it, and use this exact logic to draw each stripe
-	    	
-	        
-	        //ManageUserScript();
-	        // After sprites are drawn, here we call ManageUserScript(), which is the code written by 
-	        //the user of the program this will draw extra stuff on screen, or change the map, 
-	        // variables handled by the user, etc
 	    }
+	    // sorting sprites
+	    //double[] distances_sprites = new double[numSprites];
+	    for (int s=0; s < numSprites; s++) {
+	    	
+	    	spriteArr[s].spriteDist = ((camera.xPos - spriteArr[s].spriteXPos) * (camera.xPos - spriteArr[s].spriteXPos) + (camera.yPos - spriteArr[s].spriteYPos) * (camera.yPos - spriteArr[s].spriteYPos)); //sqrt not taken, unneeded
+	    	//distances_sprites[s] = spriteArr[s].spriteDist;
+	    }
+	    Arrays.sort(spriteArr);
+	    
+	    // adding sprite 
+	    for(int i = 0; i < numSprites; i++) {
+	    	double spriteX = (double)spriteArr[i].spriteXPos - camera.xPos;
+	        double spriteY = (double)spriteArr[i].spriteYPos - camera.yPos;
+	        
+	        double invDet = 1.0 / (camera.xPlane * camera.yDir - camera.xDir * camera.yPlane); //required for correct matrix multiplication
+	        
+	        double transformX = invDet * (camera.yDir * spriteX - camera.xDir * spriteY);
+	        double transformY = invDet * (-camera.yPlane * spriteX + camera.xPlane * spriteY); //this is actually the depth inside the screen, that what Z is in 3D
+
+	        int spriteScreenX = (int)((width / 2) * (1 + transformX / transformY));
+	      //calculate height of the sprite on screen
+	        int spriteHeight = Math.abs((int)(height / (transformY)));//using 'transformY' instead of the real distance prevents fisheye
+	        //calculate lowest and highest pixel to fill in current stripe
+	        int drawStartY = -spriteHeight / 2 + height / 2;
+	        if(drawStartY < 0) drawStartY = 0;
+	        int drawEndY = spriteHeight / 2 + height / 2;
+	        if(drawEndY >= height) drawEndY = height - 1;
+	        
+	      //calculate width of the sprite
+	        int spriteWidth = Math.abs( (int) (height / (transformY)));
+	        int drawStartX = -spriteWidth / 2 + spriteScreenX;
+	        if(drawStartX < 0) drawStartX = 0;
+	        int drawEndX = spriteWidth / 2 + spriteScreenX;
+	        if(drawEndX >= width) drawEndX = width - 1;
+	        
+	        if (spriteArr[i].spriteDist > sprite_render_dist) {
+	        	drawStartX = 0; // sets a limmited view rendering distance
+	        	drawEndX = 0;
+	        }
+	        
+	      //loop through every vertical stripe of the sprite on screen
+	        
+	        int texNum = map[(int)spriteArr[i].spriteXPos][(int)spriteArr[i].spriteYPos] - 1;
+	        for(int stripe = drawStartX; stripe < drawEndX; stripe++)
+	        {
+	        	int texX = (int)(256 * (stripe - (-spriteWidth / 2 + spriteScreenX)) * spriteArr[i].getTexture(textures, texNum).SIZE / spriteWidth) / 256;
+	          //the conditions in the if are:
+	          //1) it's in front of camera plane so you don't see things behind you
+	          //2) it's on the screen (left)
+	          //3) it's on the screen (right)
+	          //4) ZBuffer, with perpendicular distance
+	          if(transformY > 0 && stripe > 0 && stripe < width && transformY < perp_wall_dist_buffer[stripe])
+	          for(int y = drawStartY; y < drawEndY; y++) //for every pixel of the current stripe
+	          {
+	              int d = (y) * 256 - height * 128 + spriteHeight * 128; //256 and 128 factors to avoid floats
+	              int texY = ((d * spriteArr[i].getTexture(textures, texNum).SIZE) / spriteHeight) / 256;
+	              int color = spriteArr[i].getTexture(textures, texNum).pixels[texX + (texY * spriteArr[i].getTexture(textures, texNum).SIZE)];
+	              
+	              //get current color from the texture
+		            if(color != 0x000000) {
+		            	double percd = spriteArr[i].spriteDist/sprite_render_dist;
+			            int rc = (int)((percd)*((fog_color & 0xFF0000) >> 16) + (1-percd)*((color & 0xFF0000) >> 16));
+			            int gc = (int)((percd)*((fog_color & 0xFF00) >> 8) + (1-percd)*((color & 0xFF00) >> 8));
+			            int bc = (int)((percd)*((fog_color & 0xFF)) + (1-percd)*((color & 0xFF)));
+			            color = ((rc&0x0ff)<<16)|((gc&0x0ff)<<8)|(bc&0x0ff);
+		            	for (int l=0; l<pixel_effect; l++) pixels[(stripe+l) + y*(width)] = color;
+		            } //paint pixel if it isn't black, black is the invisible color
+	              
+	          }
+	        }
+	        
+	    }
+        
+        //ManageUserScript(pixels);
+        //code written by 
+        //the user of the program this will draw extra stuff on screen, or change the map, 
+        // variables handled by the user, etc
 	    return pixels;
 	    
 	}

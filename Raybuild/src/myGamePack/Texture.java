@@ -17,13 +17,12 @@ public class Texture {
 	public int W_EXTRA;
 	// Textures must be smaller than screen resolution
 	public static Texture null_texture = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\null.png", false);
-	public static Texture null_texture2 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\null2.png", false);
-	public static Texture lain = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\lain.png", false);
 	public static Texture distant = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\distant.png", false);
-	public static Texture skybox = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\skybox.png", false);
-	public static Texture skybox23 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\skybox23.png", false);
+	public static Texture skybox23 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\skybox.png", false);
 	public static Texture city = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\city.png", true);
 	public static Texture logo = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\logo.png", false);
+	public static Texture sprite = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\sprite.png", false);
+	// Keep in mind, black in sprites mean invisible color so purely black pixels of sprites will not be drawn on screen
 	
 	public Texture(String location, boolean isTall) {
 		loc = location;
@@ -38,13 +37,13 @@ public class Texture {
 			int w = image.getWidth();
 			int h = image.getHeight();
 			if (w*h == SIZE*SIZE || (w==SIZE && h==SIZE*2)) {
-				image.getRGB(0, 0, w, h, pixels, 0, w);
+				image.getRGB(0, 0, w, h, pixels, 0, w); // sprites and blocks are stored here
 			} else if (Game.WID == w/4 && Game.HEI == h) {
 				H_SKYSIZE = h;
 				W_SKYSIZE = w;
 				sky_pixels = new int[w * h];
-				image.getRGB(0, 0, w, h, sky_pixels, 0, w);
-			} 
+				image.getRGB(0, 0, w, h, sky_pixels, 0, w); // sky box is stored here
+			}
 				H_EXTRA = h;
 				W_EXTRA = w;
 				extras = new int[w * h];
