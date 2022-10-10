@@ -21,10 +21,12 @@ public class Screen {
 	public int fog_color;
 	public int ground_color;
 	public int numSprites;
-	Sprite[] spriteArr;
+	public boolean sky_wave;
+	public int animationLengths;
+	public Sprite[] spriteArr;
 	public Texture sky;
 	
-	public Screen(int[][] m, int mapW, int mapH, ArrayList<Texture> tex, int w, int h, int pixEf, int fogc, int ground_c, Texture skybox, int ns, Sprite[] sa) {
+	public Screen(int[][] m, int mapW, int mapH, ArrayList<Texture> tex, int w, int h, int pixEf, int fogc, int ground_c, Texture skybox, int ns, Sprite[] sa, int aL, boolean sw) {
 		map = m;
 		mapWidth = mapW;
 		mapHeight = mapH;
@@ -37,11 +39,12 @@ public class Screen {
 		sky = skybox;
 		numSprites = ns;
 		spriteArr = sa;
+		animationLengths = aL;
+		sky_wave = sw;
 		
 	}
 	
-	public int[] update(Camera camera, int[] pixels) {
-		
+	public int[] update(Camera camera, int[] pixels, int frames) {
 		// draws skybox
 		double row=-1.0;
 		double max_row = height/2;
@@ -50,17 +53,22 @@ public class Screen {
 		int skybox_x = -1;
 		int skybox_y = -1;
 		int rotate_sky = (int)(((360-camera.player_degree) / 360.0)*sky.W_SKYSIZE);
+		if (sky_wave) {
+			rotate_sky = rotate_sky + (int)(30*Math.cos(((double)frames % 50)/8.0));
+		}
 		for (int n=0; n < pixels.length/2; n=n+pixel_effect) {
 			// adding fog 
 			if (n % width == 0 && row < max_row) {
 				skybox_x = rotate_sky;
+				if (skybox_x < 0) {
+					skybox_x = 0;
+				}
 				skybox_y++;
 				row++;
 				fog_perc = row/max_row;
 			} else if (row > max_row) {
 				break;
 			}
-			//if (skybox_y == 0) {System.out.println(skybox_x + sky.W_SKYSIZE*skybox_y);}
 				int rc = (int)((fog_perc)*((fog_color & 0xFF0000) >> 16) + (1-fog_perc)*((sky.sky_pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF0000) >> 16));
 	            int gc = (int)((fog_perc)*((fog_color & 0xFF00) >> 8) + (1-fog_perc)*((sky.sky_pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF00) >> 8));
 	            int bc = (int)((fog_perc)*((fog_color & 0xFF)) + (1-fog_perc)*((sky.sky_pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF)));
@@ -151,13 +159,8 @@ public class Screen {
 	                side = 1;
 	            }
 	            //Check if ray has hit a wall (if ray hits 999, that is an invisible wall, not a hit)
-	         // if this ray hit a sprite, then ignore it because that is not a hit (sprites are 700 to 998)
+	         // if this ray hit a sprite, then ignore it because that is not a hit (sprites are 700 to 998, 999 is reserved for invisible wall, 800 to 998 is for animating sprites)
 	            if(map[mapX][mapY] > 0 && map[mapX][mapY] < 700) hit = true;
-	            //if (map[mapX][mapY] > 699 && map[mapX][mapY] < 800) {
-	            //	spriteXPos = mapX;
-	            //	spriteYPos = mapY;
-	            	
-	            //}
 	        }
 	        
 	        
@@ -246,12 +249,15 @@ public class Screen {
 	        }
 	        
 	    }
-	    // sorting sprites
-	    //double[] distances_sprites = new double[numSprites];
+	    
+	    
+	    // sorting sprites and also check which is an animating sprite
 	    for (int s=0; s < numSprites; s++) {
 	    	
 	    	spriteArr[s].spriteDist = ((camera.xPos - spriteArr[s].spriteXPos) * (camera.xPos - spriteArr[s].spriteXPos) + (camera.yPos - spriteArr[s].spriteYPos) * (camera.yPos - spriteArr[s].spriteYPos)); //sqrt not taken, unneeded
-	    	//distances_sprites[s] = spriteArr[s].spriteDist;
+	    	if (map[(int)spriteArr[s].spriteXPos][(int)spriteArr[s].spriteYPos] > 799 && map[(int)spriteArr[s].spriteXPos][(int)spriteArr[s].spriteYPos] < 999) {
+	    		map[(int)spriteArr[s].spriteXPos][(int)spriteArr[s].spriteYPos] = 800 + frames % animationLengths;
+	    	}
 	    }
 	    Arrays.sort(spriteArr);
 	    

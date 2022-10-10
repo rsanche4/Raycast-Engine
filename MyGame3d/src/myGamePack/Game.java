@@ -21,12 +21,16 @@ public class Game extends JFrame implements Runnable{
 	public String bgm_path = "C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\dire.wav";
 	public static int WID = 800;
 	public static int HEI = 600;
+	public static double FPS = 60.0;
 	public int fog_col = 0x93ABFF; 
 	public int ground_color = Color.DARK_GRAY.getRGB();
+	public int animation_speed = 135;
+	public boolean sky_self_movement = true;
 	private int retro_feel = 5;
 	private int numberSprites = 0;
 	private Sprite[] spriteArray;
-	private int TEX_MAX = 800;
+	private int animation_lengths;
+	private int TEX_MAX = 998;
 	private Thread thread;
 	private boolean running;
 	private BufferedImage image;
@@ -53,8 +57,8 @@ public class Game extends JFrame implements Runnable{
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
-				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0, 804,   0,   0,   0,   0,   0,   0,   1},
+				{  1,   0,   0,   0,   0,   0,   0, 800,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
 				{  1,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,   1},
@@ -70,7 +74,7 @@ public class Game extends JFrame implements Runnable{
 		pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 		init_textures_for_render(); 
 		camera = new Camera(2.0, 2.0, 1, 0, 0, -.66);
-		screen = new Screen(map, mapWidth, mapHeight, textures, WID, HEI, retro_feel, fog_col, ground_color, Texture.skybox23, numberSprites, spriteArray);
+		screen = new Screen(map, mapWidth, mapHeight, textures, WID, HEI, retro_feel, fog_col, ground_color, Texture.skybox23, numberSprites, spriteArray, animation_lengths, sky_self_movement);
 		new Sound(bgm_path);
 		addKeyListener(camera);
 		setSize(WID, HEI);
@@ -89,6 +93,15 @@ public class Game extends JFrame implements Runnable{
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(1, Texture.distant));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(6, Texture.city));
 		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(755, Texture.sprite));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(800, Texture.sprite0));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(801, Texture.sprite1));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(802, Texture.sprite2));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(803, Texture.sprite3));
+		
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(804, Texture.sprite0));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(805, Texture.sprite1));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(806, Texture.sprite2));
+		index_to_texture_array.add(new SimpleEntry<Integer, Texture>(807, Texture.sprite3));
 		textures = new ArrayList<Texture>(TEX_MAX);
 		while(textures.size() < TEX_MAX) textures.add(Texture.null_texture);
 		for (SimpleEntry<Integer, Texture> index_to_text : index_to_texture_array) {
@@ -97,7 +110,7 @@ public class Game extends JFrame implements Runnable{
 		Sprite[] tempSpriteArray = new Sprite[100];
 		for (int row = 0; row < mapHeight; row++) {
 			for (int col = 0; col < mapWidth; col++) {
-				if (map[row][col] > 699 && map[row][col] < 800) {
+				if (map[row][col] > 699 && map[row][col] < 998) {
 					tempSpriteArray[numberSprites] = new Sprite(row, col);
 					numberSprites++;// count how many sprites are on the map. Limit to 100
 				}
@@ -107,6 +120,7 @@ public class Game extends JFrame implements Runnable{
 		for (int k=0; k < numberSprites; k++) {
 			spriteArray[k] = tempSpriteArray[k];
 		}
+		animation_lengths = 4;
 		
 	}
 	
@@ -134,17 +148,25 @@ public class Game extends JFrame implements Runnable{
 	}
 	public void run() {
 		long lastTime = System.nanoTime();
-		final double ns = 1000000000.0 / 60.0;//60 times per second
+		final double ns = 1000000000.0 / FPS;//60 times per second
 		double delta = 0;
 		requestFocus();
+		int frame_num = 0;
+		int animation_delay = 0;
 		while(running) {
 			long now = System.nanoTime();
 			delta = delta + ((now-lastTime) / ns);
 			lastTime = now;
+			if (animation_delay % animation_speed == 0) {
+				frame_num = (frame_num % Integer.MAX_VALUE) + 1;
+				animation_delay = (animation_delay % Integer.MAX_VALUE) + 1;
+			} else {
+				animation_delay = (animation_delay % Integer.MAX_VALUE) + 1;
+			}
 			while (delta >= 1)//Make sure update is only happening 60 times a second
 			{
 				//handles all of the logic restricted time
-				screen.update(camera, pixels);
+				screen.update(camera, pixels, frame_num);
 				camera.update(map);
 				delta--;
 			}

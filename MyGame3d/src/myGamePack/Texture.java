@@ -23,6 +23,11 @@ public class Texture {
 	public static Texture logo = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\logo.png", false);
 	public static Texture sprite = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\sprite.png", false);
 	// Keep in mind, black in sprites mean invisible color so purely black pixels of sprites will not be drawn on screen
+	// animation sprites
+	public static Texture sprite0 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\sprite_0.png", false);
+	public static Texture sprite1 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\sprite_1.png", false);
+	public static Texture sprite2 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\sprite_2.png", false);
+	public static Texture sprite3 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\sprite_3.png", false);
 	
 	public Texture(String location, boolean isTall) {
 		loc = location;
