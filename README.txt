@@ -1,3 +1,7 @@
-Work In progress...
 
-I still need to add sprites, improve user interface, and also add other features like scripting to make different game mechanics.
+ A very simple Raycasting Engine made in Java! 
+ 
+ Here is a video that shows a quick demo of what the engine can accomplish.
+ https://youtu.be/8JfABKVZRzU
+ 
+ There are comments through out the code explaining what each part does. Contact me for any questions!
