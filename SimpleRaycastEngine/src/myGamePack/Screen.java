@@ -1,5 +1,6 @@
 package myGamePack;
 
+import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -16,17 +17,19 @@ public class Screen {
 	public int mapWidth, mapHeight, width, height;
 	public ArrayList<Texture> textures;
 	public int pixel_effect;
-	public int render_dist = 20;
+	public int render_dist = 15;
 	public int sprite_render_dist = 15*render_dist;
 	public int fog_color;
-	public int ground_color;
 	public int numSprites;
+	public boolean in_doors;
+	public int ceiling_texNum;
+	public SimpleEntry<Integer, Integer>[] tile_coords;
 	public boolean sky_wave;
 	public int animationLengths;
 	public Sprite[] spriteArr;
 	public Texture sky;
 	
-	public Screen(int[][] m, int mapW, int mapH, ArrayList<Texture> tex, int w, int h, int pixEf, int fogc, int ground_c, Texture skybox, int ns, Sprite[] sa, int aL, boolean sw) {
+	public Screen(int[][] m, int mapW, int mapH, ArrayList<Texture> tex, int w, int h, int pixEf, int fogc, Texture skybox, int ns, Sprite[] sa, int aL, boolean sw, boolean in, SimpleEntry<Integer, Integer>[] tcs, int ctn) {
 		map = m;
 		mapWidth = mapW;
 		mapHeight = mapH;
@@ -35,81 +38,65 @@ public class Screen {
 		height = h;
 		pixel_effect = pixEf;
 		fog_color = fogc;
-		ground_color = ground_c;
 		sky = skybox;
 		numSprites = ns;
 		spriteArr = sa;
 		animationLengths = aL;
 		sky_wave = sw;
-		
+		in_doors = in;
+		tile_coords = tcs;
+		ceiling_texNum = ctn;
 	}
 		
 	
 	
 	public int[] update(Camera camera, int[] pixels, int frames) {
 		if (camera.isMenu) {
-			int menu_texture = 1000;
 			for (int i = 0; i < pixels.length; i++) {
-				pixels[i] = textures.get(menu_texture-1).pixels[i];
+				pixels[i] = Texture.menu_background.pixels[i];
 			}
 		} else {
 		
 		
 		// draws skybox
-		double row=-1.0;
-		double max_row = height/2;
-		int new_fog_color_ceiling=0;
-		double fog_perc = 0;
-		int skybox_x = -1;
-		int skybox_y = -1;
-		int rotate_sky = (int)(((360-camera.player_degree) / 360.0)*sky.W_SKYSIZE);
-		if (sky_wave) {
-			rotate_sky = rotate_sky + (int)(30*Math.cos(((double)frames % 50)/8.0));
-		}
-		for (int n=0; n < pixels.length/2; n=n+pixel_effect) {
-			// adding fog 
-			if (n % width == 0 && row < max_row) {
-				skybox_x = rotate_sky;
-				if (skybox_x < 0) {
-					skybox_x = 0;
-				}
-				skybox_y++;
-				row++;
-				fog_perc = row/max_row;
-			} else if (row > max_row) {
-				break;
+		if (!in_doors) {
+			double row=-1.0;
+			double max_row = height/2;
+			int new_fog_color_ceiling=0;
+			double fog_perc = 0;
+			int skybox_x = -1;
+			int skybox_y = -1;
+			int rotate_sky = (int)(((360-camera.player_degree) / 360.0)*sky.W_SKYSIZE);
+			if (sky_wave) {
+				rotate_sky = rotate_sky + (int)(30*Math.cos(((double)frames % 50)/8.0));
 			}
-				int rc = (int)((fog_perc)*((fog_color & 0xFF0000) >> 16) + (1-fog_perc)*((sky.pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF0000) >> 16));
-	            int gc = (int)((fog_perc)*((fog_color & 0xFF00) >> 8) + (1-fog_perc)*((sky.pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF00) >> 8));
-	            int bc = (int)((fog_perc)*((fog_color & 0xFF)) + (1-fog_perc)*((sky.pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF)));
-	            new_fog_color_ceiling = ((rc&0x0ff)<<16)|((gc&0x0ff)<<8)|(bc&0x0ff);
-	            for (int i=0; i<pixel_effect; i++) pixels[n+i] = new_fog_color_ceiling;
-	            skybox_x+=pixel_effect;
-			
+			for (int n=0; n < pixels.length/2; n=n+pixel_effect) {
+				// adding fog 
+				if (n % width == 0 && row < max_row) {
+					skybox_x = rotate_sky;
+					if (skybox_x < 0) {
+						skybox_x = 0;
+					}
+					skybox_y++;
+					row++;
+					fog_perc = row/max_row;
+				} else if (row > max_row) {
+					break;
+				}
+					int rc = (int)((fog_perc)*((fog_color & 0xFF0000) >> 16) + (1-fog_perc)*((sky.pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF0000) >> 16));
+		            int gc = (int)((fog_perc)*((fog_color & 0xFF00) >> 8) + (1-fog_perc)*((sky.pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF00) >> 8));
+		            int bc = (int)((fog_perc)*((fog_color & 0xFF)) + (1-fog_perc)*((sky.pixels[skybox_x + sky.W_SKYSIZE*skybox_y] & 0xFF)));
+		            new_fog_color_ceiling = ((rc&0x0ff)<<16)|((gc&0x0ff)<<8)|(bc&0x0ff);
+		            for (int i=0; i<pixel_effect; i++) pixels[n+i] = new_fog_color_ceiling;
+		            skybox_x+=pixel_effect;
+				
+			}
 		}
 		
-		// drawing floor
-		row = height/2;
-		max_row = height/2;
-		int new_fog_color_floor=fog_color;
-		double not_fog_perc = 0.0;
-		// draws floor
-	    for(int i=pixels.length/2; i<pixels.length; i++) {
-	    	//adding fog
-	    	if (i % width == 0) {
-				row--;
-				not_fog_perc = row/max_row;
-			}
-	    	int rc = (int)((not_fog_perc)*((fog_color & 0xFF0000) >> 16) + (1-not_fog_perc)*((ground_color & 0xFF0000) >> 16));
-            int gc = (int)((not_fog_perc)*((fog_color & 0xFF00) >> 8) + (1-not_fog_perc)*((ground_color & 0xFF00) >> 8));
-            int bc = (int)((not_fog_perc)*((fog_color & 0xFF)) + (1-not_fog_perc)*((ground_color & 0xFF)));
-            new_fog_color_floor = ((rc&0x0ff)<<16)|((gc&0x0ff)<<8)|(bc&0x0ff);
-            pixels[i] = new_fog_color_floor;
-	        
-	    }
-	    
+		
 	    double[] perp_wall_dist_buffer = new double[width];
 	    for (int x=0; x<width; x=x+pixel_effect) {
+	    	// WALL CASTING
 	    	double cameraX = 2 * x / (double)(width) -1;
 	        
 	        double rayDirX = camera.xDir + camera.xPlane * cameraX; 
@@ -257,6 +244,93 @@ public class Screen {
 		            color = ((rc&0x0ff)<<16)|((gc&0x0ff)<<8)|(bc&0x0ff);
 		            for (int i=0; i<pixel_effect; i++) pixels[(x+i) + y*(width)] = color;	
 	            
+	        }
+	        
+	        
+	      //FLOOR CASTING (vertical version, directly after drawing the vertical wall stripe for the current x)
+	        double floorXWall, floorYWall; //x, y position of the floor texel at the bottom of the wall
+
+	        //4 different wall directions possible
+	        if(side == 0 && rayDirX > 0)
+	        {
+	          floorXWall = mapX;
+	          floorYWall = mapY + wallX;
+	        }
+	        else if(side == 0 && rayDirX < 0)
+	        {
+	          floorXWall = mapX + 1.0;
+	          floorYWall = mapY + wallX;
+	        }
+	        else if(side == 1 && rayDirY > 0)
+	        {
+	          floorXWall = mapX + wallX;
+	          floorYWall = mapY;
+	        }
+	        else
+	        {
+	          floorXWall = mapX + wallX;
+	          floorYWall = mapY + 1.0;
+	        }
+
+	        double distWall, distPlayer, currentDist;
+
+	        distWall = perpWallDist;
+	        distPlayer = 0.0;
+
+	        if (drawEnd < 0) drawEnd = height; //becomes < 0 when the integer overflows
+
+	        //draw the floor from drawEnd to the bottom of the screen
+	        for(int y = drawEnd + 1; y < height; y++)
+	        {
+	        	
+	          currentDist = height / (2.0 * y - height); //you could make a small lookup table for this instead
+
+	          double weight = (currentDist - distPlayer) / (distWall - distPlayer);
+
+	          double currentFloorX = weight * floorXWall + (1.0 - weight) * camera.xPos;
+	          double currentFloorY = weight * floorYWall + (1.0 - weight) * camera.yPos;
+
+	          int floorTexX, floorTexY;
+	          floorTexX = ((int)(Math.abs(currentFloorX) * 64)) % 64;
+	          floorTexY = ((int)(Math.abs(currentFloorY) * 64)) % 64;
+	          //default tile
+	          int texNumber = 999;
+	          
+	          int draw_tilex = ((int)(currentFloorX)) % mapWidth;
+	          int draw_tiley = ((int)(currentFloorY)) % mapHeight;
+	          
+	          // draw the tiles at the positions given by the tile_coords array
+	          for (int m=0; m < mapWidth*mapHeight; m++) {
+	        	  if (tile_coords[m].getKey() < 0) {
+	        		  break; // no more tiles to draw on map
+	        	  }
+	        	  if (draw_tilex == tile_coords[m].getKey() && draw_tiley == tile_coords[m].getValue()) {
+		        	  texNumber = Math.abs(map[tile_coords[m].getKey()][tile_coords[m].getValue()])+1000-1;
+		          }
+	          }
+	          
+	          
+	          
+	          int new_color = textures.get(texNumber).pixels[floorTexX + (floorTexY * textures.get(texNumber).SIZE)];
+	            
+	            // adding fog 
+	            double percd_floor = currentDist/render_dist;
+	            if (percd_floor > 1) {percd_floor = 1;}
+	            int rcf = (int)((percd_floor)*((fog_color & 0xFF0000) >> 16) + (1-percd_floor)*((new_color & 0xFF0000) >> 16));
+	            int gcf = (int)((percd_floor)*((fog_color & 0xFF00) >> 8) + (1-percd_floor)*((new_color & 0xFF00) >> 8));
+	            int bcf = (int)((percd_floor)*((fog_color & 0xFF)) + (1-percd_floor)*((new_color & 0xFF)));
+	            new_color = ((rcf&0x0ff)<<16)|((gcf&0x0ff)<<8)|(bcf&0x0ff);
+	            
+	            if (!in_doors && y < height/2) {continue;}
+	            for (int i=0; i<pixel_effect; i++) pixels[(x+i) + y*(width)] = new_color;	
+	            //ceiling (symmetrical!)
+	            texNumber = ceiling_texNum-1;
+	            int new_color_c = textures.get(texNumber).pixels[floorTexX + (floorTexY * textures.get(texNumber).SIZE)];
+	            int rcc = (int)((percd_floor)*((fog_color & 0xFF0000) >> 16) + (1-percd_floor)*((new_color_c & 0xFF0000) >> 16));
+	            int gcc = (int)((percd_floor)*((fog_color & 0xFF00) >> 8) + (1-percd_floor)*((new_color_c & 0xFF00) >> 8));
+	            int bcc = (int)((percd_floor)*((fog_color & 0xFF)) + (1-percd_floor)*((new_color_c & 0xFF)));
+	            new_color_c = ((rcc&0x0ff)<<16)|((gcc&0x0ff)<<8)|(bcc&0x0ff);
+	            if (in_doors) {for (int i=0; i<pixel_effect; i++) pixels[(x+i) + (height-y)*(width)] = new_color_c;	}
 	        }
 	        
 	    }

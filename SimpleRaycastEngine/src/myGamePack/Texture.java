@@ -16,12 +16,23 @@ public class Texture { // keep all textures to .png
 	private static String sky_box = "sky box";
 	private static String sprite = "sprite";
 	private static String menu = "menu";
+	private static String floor = "floor"; // ceiling textures are also used with floor textures so both fall under same category
 	
 	// Blocks should be SIZE pixels height and SIZE pixels width
 	public static Texture null_texture = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\null.png", normal_block);
 	public static Texture wood_block = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\wood.png", normal_block);
 	public static Texture wood_door = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\wood_door.png", normal_block);
 	public static Texture tall_wood = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\tall_wood.png", tall_block);
+	public static Texture grass_floor = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\grass_texture.png", floor);
+	public static Texture water = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\water.png", floor);
+	public static Texture ceiling = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\ceil.png", floor);
+	public static Texture c1 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\colors0.png", floor);
+	public static Texture c2 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\colors1.png", floor);
+	public static Texture c3 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\colors2.png", floor);
+	public static Texture c4 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\colors3.png", floor);
+	public static Texture c5 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\colors4.png", floor);
+	public static Texture c6 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\colors5.png", floor);
+	public static Texture c7 = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\colors6.png", floor);
 	
 	// skybox. Should be 4 times width of screen resolution and same height
 	public static Texture skybox = new Texture("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\skybox.png", sky_box);
@@ -57,10 +68,9 @@ public class Texture { // keep all textures to .png
 	public Texture(String location, String type) {
 		loc = location;
 		if (type.equals(tall_block)) pixels = new int[SIZE * 2 * SIZE];
-		else if (type.equals(normal_block)) pixels = new int[SIZE * SIZE];
+		else if (type.equals(normal_block) || type.equals(floor) || type.equals(sprite)) pixels = new int[SIZE * SIZE];
 		else if (type.equals(sky_box)) pixels = new int[(Game.WID*4) * Game.HEI];
 		else if (type.equals(menu)) pixels = new int[Game.WID * Game.HEI];  
-		else if (type.equals(sprite)) pixels = new int[SIZE * SIZE];
 		load();
 	}
 

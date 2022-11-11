@@ -68,7 +68,7 @@ public class Camera implements KeyListener {
 	    if (enter && isMenu) {
 	    	isMenu = false;
 	    	Sound.stopSound();
-	    	Sound.playSound("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\game.wav"); // song to play when in game
+	    	Sound.playSound("C:\\Users\\rafas\\eclipse-workspace\\MyGame3d\\res\\game.wav");
 	    }
 		if (forward) {
 			if (map[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos] < 1 || map[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos] > 699) {
