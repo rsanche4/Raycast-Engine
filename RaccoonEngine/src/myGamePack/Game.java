@@ -24,7 +24,7 @@ public class Game extends JFrame implements Runnable{
 	public static int HEI = 600;
 	public static boolean generate_new_world = false;
 	public static double FPS = 60.0;
-	public static int SEED = 7; // Between 0 and 2147483647
+	public static int SEED = 16; // Between 0 and 2147483647
 	public int fog_col = 0x898557; 
 	public int animation_speed = 135;
 	public boolean in_doors = true;
@@ -85,7 +85,7 @@ public class Game extends JFrame implements Runnable{
 				}
 				
 		// World gen. To generate the floors we simply add 1000 to our regular world blocks
-		int biome = SEED%8; // since there are 32 biomes
+		int biome = SEED%9; // since there are 32 biomes
 		if (biome==0) { // UNDERWORLD;
 			for (int row = 0; row < mapHeight; row++) {
 				for (int col = 0; col < mapWidth; col++) {
@@ -305,6 +305,71 @@ public class Game extends JFrame implements Runnable{
 					in_doors = false;
 					ceiling_structure_number = 1111;
 					render_distance = 100;
+		}else if (biome==8) { //BACKROOMS CLASSIC
+			for (int row = 0; row < mapHeight; row++) {
+				for (int col = 0; col < mapWidth; col++) {
+					if (!(row==0 || col==0 || row==mapHeight-1 || col==mapWidth-1)) {
+						map[row][col]=world_vals[7];
+					}
+				}
+			}
+			
+			for (int row = 0; row < mapHeight; row++) {
+				for (int col = 0; col < mapWidth; col++) {
+					if (!(row==0 || col==0 || row==mapHeight-1 || col==mapWidth-1)) {
+						if (row%2==1 && col%2==1) {
+							map[row][col]=0;
+							if (row==1 && col!=1) {
+								map[row][col-1]=0;
+							} else if (col==1 && row!=1) {
+								map[row-1][col]=0;
+							} else {
+								if (r.nextBoolean()) {
+									map[row][col-1]=0;
+								} else {
+									map[row-1][col]=0;
+								}
+							}
+							
+						}
+						
+					}
+				}
+			}
+			
+			for (int i=0; i < 4000; i++) {
+				int spot_on_map_x = r.nextInt(mapHeight);
+				if (spot_on_map_x<=5) spot_on_map_x=5;
+				if (spot_on_map_x>=mapHeight-5) spot_on_map_x=mapHeight-5;
+				int spot_on_map_y = r.nextInt(mapWidth);
+				if (spot_on_map_y<=5) spot_on_map_y=5;
+				if (spot_on_map_y>=mapWidth-5) spot_on_map_y=mapWidth-5;
+				
+				if (r.nextInt(3)!=0) map[spot_on_map_y][spot_on_map_x] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y][spot_on_map_x+1] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+1][spot_on_map_x+1] = 0;
+				
+				if (r.nextInt(3)!=0)map[spot_on_map_y+2][spot_on_map_x] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y][spot_on_map_x+2] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+2][spot_on_map_x+2] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+1][spot_on_map_x+2] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+2][spot_on_map_x+1] = 0;
+				
+				if (r.nextInt(3)!=0)map[spot_on_map_y+3][spot_on_map_x] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y][spot_on_map_x+3] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+3][spot_on_map_x+3] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+2][spot_on_map_x+3] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+3][spot_on_map_x+2] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+3][spot_on_map_x+1] = 0;
+				if (r.nextInt(3)!=0)map[spot_on_map_y+1][spot_on_map_x+3] = 0;
+			}
+					default_tile_number = 1063-1;
+					fog_col = 0x636340;
+					mapSkybox = Texture._81;
+					sky_self_movement = false;
+					in_doors = true;
+					ceiling_structure_number = 1102;
+					render_distance = 30;
 		}
 		
 		map_matrix[(int)(mapHeight/2)][(int)(mapWidth/2)] = 0;
