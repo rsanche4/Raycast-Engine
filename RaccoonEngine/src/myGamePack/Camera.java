@@ -5,7 +5,7 @@ import java.awt.event.KeyListener;
 
 public class Camera implements KeyListener {
 	public boolean isMenu = true;
-	public double xPos, yPos, xDir, yDir, xPlane, yPlane;
+	public static double xPos, yPos, xDir, yDir, xPlane, yPlane;
 	public boolean left, right, forward, back, enter, one, two, three, four, five, six, seven, eight, nine, zero;
 	public static int speed_setting = 3;
 	public static int rotate_setting = 1;
@@ -124,36 +124,16 @@ public class Camera implements KeyListener {
 		if ((e.getKeyCode() == KeyEvent.VK_ENTER)) {
 			enter = true;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_1)) {
-			one = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_2)) {
-			two = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_3)) {
-			three = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_4)) {
-			four = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_5)) {
-			five = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_6)) {
-			six = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_7)) {
-			seven = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_8)) {
-			eight = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_9)) {
-			nine = true;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_0)) {
-			zero = true;
-		}
+		/*
+		 * if ((e.getKeyCode() == KeyEvent.VK_1)) { one = true; } if ((e.getKeyCode() ==
+		 * KeyEvent.VK_2)) { two = true; } if ((e.getKeyCode() == KeyEvent.VK_3)) {
+		 * three = true; } if ((e.getKeyCode() == KeyEvent.VK_4)) { four = true; } if
+		 * ((e.getKeyCode() == KeyEvent.VK_5)) { five = true; } if ((e.getKeyCode() ==
+		 * KeyEvent.VK_6)) { six = true; } if ((e.getKeyCode() == KeyEvent.VK_7)) {
+		 * seven = true; } if ((e.getKeyCode() == KeyEvent.VK_8)) { eight = true; } if
+		 * ((e.getKeyCode() == KeyEvent.VK_9)) { nine = true; } if ((e.getKeyCode() ==
+		 * KeyEvent.VK_0)) { zero = true; }
+		 */
 	}
 
 	@Override
@@ -173,151 +153,80 @@ public class Camera implements KeyListener {
 		if ((e.getKeyCode() == KeyEvent.VK_ENTER)) {
 			enter = false;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_1)) {
-			one = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_2)) {
-			two = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_3)) {
-			three = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_4)) {
-			four = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_5)) {
-			five = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_6)) {
-			six = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_7)) {
-			seven = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_8)) {
-			eight = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_9)) {
-			nine = false;
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_0)) {
-			zero = false;
-		}
+		/*
+		 * if ((e.getKeyCode() == KeyEvent.VK_1)) { one = false; } if ((e.getKeyCode()
+		 * == KeyEvent.VK_2)) { two = false; } if ((e.getKeyCode() == KeyEvent.VK_3)) {
+		 * three = false; } if ((e.getKeyCode() == KeyEvent.VK_4)) { four = false; } if
+		 * ((e.getKeyCode() == KeyEvent.VK_5)) { five = false; } if ((e.getKeyCode() ==
+		 * KeyEvent.VK_6)) { six = false; } if ((e.getKeyCode() == KeyEvent.VK_7)) {
+		 * seven = false; } if ((e.getKeyCode() == KeyEvent.VK_8)) { eight = false; } if
+		 * ((e.getKeyCode() == KeyEvent.VK_9)) { nine = false; } if ((e.getKeyCode() ==
+		 * KeyEvent.VK_0)) { zero = false; }
+		 */
 	}
 	
 	public void update(int[][] map) {
 	    if (enter && isMenu) {
 	    	isMenu = false;
-	    	//Sound.stopSound();
-	    	//Sound.playSound(bgm);
+	    	Sound.stopSound();
+	    	//System.out.println("> World generation finished. " +Game.username + " joined the world!");
+	    	Sound.playSound(bgm);
 	    }
-	    if (one) {
-	    	Game.generate_new_world = true;
-	    }
-	    
-	    if (two) {
-	    	if (gate12) {
-	    		gate22 = true;
-	    	}
-	    	gate12 = true;
-	    	if (!gate22) {
-	    		changeSpeed();
-	    	}
-	    } else {
-	    	gate12 = false;
-	    	gate22 = false;
-	    }
-	    
-	    if (three) {
-	    	if (gate13) {
-	    		gate23 = true;
-	    	}
-	    	gate13 = true;
-	    	if (!gate23) {
-	    		changeRotate();
-	    	}
-	    } else {
-	    	gate13 = false;
-	    	gate23 = false;
-	    }
-	    
-	    if (four) {
-	    	changeRenderDistance();
-	    }
-	    
-	    if (five) {
-	    	if (gate15) {
-	    		gate25 = true;
-	    	}
-	    	gate15 = true;
-	    	if (!gate25) {
-	    		changeRetroFeel();
-	    	}
-	    } else {
-	    	gate15 = false;
-	    	gate25 = false;
-	    }
-	    
-	    if (six) {
-	    	if (gate16) {
-	    		gate26 = true;
-	    	}
-	    	gate16 = true;
-	    	if (!gate26) {
-	    		changeFloor();
-	    	}
-	    } else {
-	    	gate16 = false;
-	    	gate26 = false;
-	    }
-	    
-	    if (seven) {
-	    	if (gate17) {
-	    		gate27 = true;
-	    	}
-	    	gate17 = true;
-	    	if (!gate27) {
-	    		changeCeil();
-	    	}
-	    } else {
-	    	gate17 = false;
-	    	gate27 = false;
-	    }
-	    
-	    if (eight) {
-	    	if (gate18) {
-	    		gate28 = true;
-	    	}
-	    	gate18 = true;
-	    	if (!gate28) {
-	    		changeSkyMove();
-	    	}
-	    } else {
-	    	gate18 = false;
-	    	gate28 = false;
-	    }
-	    
-	    if (nine) {
-	    	changeFogColorPlus();
-	    }
-	    
-	    if (zero) {
-	    	changeFogColorMinus();
-	    }
+		/*
+		 * if (one) { Game.generate_new_world = true; }
+		 * 
+		 * if (two) { if (gate12) { gate22 = true; } gate12 = true; if (!gate22) {
+		 * changeSpeed(); } } else { gate12 = false; gate22 = false; }
+		 * 
+		 * if (three) { if (gate13) { gate23 = true; } gate13 = true; if (!gate23) {
+		 * changeRotate(); } } else { gate13 = false; gate23 = false; }
+		 * 
+		 * if (four) { changeRenderDistance(); }
+		 * 
+		 * if (five) { if (gate15) { gate25 = true; } gate15 = true; if (!gate25) {
+		 * changeRetroFeel(); } } else { gate15 = false; gate25 = false; }
+		 * 
+		 * if (six) { if (gate16) { gate26 = true; } gate16 = true; if (!gate26) {
+		 * changeFloor(); } } else { gate16 = false; gate26 = false; }
+		 * 
+		 * if (seven) { if (gate17) { gate27 = true; } gate17 = true; if (!gate27) {
+		 * changeCeil(); } } else { gate17 = false; gate27 = false; }
+		 * 
+		 * if (eight) { if (gate18) { gate28 = true; } gate18 = true; if (!gate28) {
+		 * changeSkyMove(); } } else { gate18 = false; gate28 = false; }
+		 * 
+		 * if (nine) { changeFogColorPlus(); }
+		 * 
+		 * if (zero) { changeFogColorMinus(); }
+		 */
 	    
 		if (forward) {
 			if (map[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos] < 1 || map[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos] > 699) {
-				xPos += xDir * MOVE_SPEED;
+				if (map[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos] != 999) {
+					xPos += xDir * MOVE_SPEED;
+				}
+				
 			}
 			if (map[(int)xPos][(int)(yPos + yDir * MOVE_SPEED)] < 1 || map[(int)xPos][(int)(yPos + yDir * MOVE_SPEED)] > 699) {
-				yPos += yDir * MOVE_SPEED;
+				if (map[(int)xPos][(int)(yPos + yDir * MOVE_SPEED)] != 999) {
+					yPos += yDir * MOVE_SPEED;
+				}
+				
 			}
 		}
 		if (back) {
 			if(map[(int)(xPos - xDir * MOVE_SPEED)][(int)yPos] < 1 || map[(int)(xPos - xDir * MOVE_SPEED)][(int)yPos] > 699 )
-				xPos -= xDir * MOVE_SPEED;
+				if (map[(int)(xPos - xDir * MOVE_SPEED)][(int)yPos] != 999) {
+					xPos -= xDir * MOVE_SPEED;
+				}
+				
+				
 			if(map[(int)xPos][(int)(yPos - yDir * MOVE_SPEED)] < 1 || map[(int)xPos][(int)(yPos - yDir * MOVE_SPEED)] > 699)
-				yPos -= yDir * MOVE_SPEED;
+				if (map[(int)xPos][(int)(yPos - yDir * MOVE_SPEED)] != 999) {
+					yPos -= yDir * MOVE_SPEED;
+				}
+				
+				
 		}
 		if(right) {
 			double oldxDir=xDir;
