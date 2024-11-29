@@ -25,7 +25,7 @@ project_path = open('..\\project_location.txt', 'r').read()
 NULL_IMAGE = pygame.image.load(project_path+"\\block0.png")
 
 # Image for Empty Areas in Layer 1 Not Textured on
-NULL_IMAGE_SPRITE = pygame.image.load(project_path+"\\sprite0.png").subsurface(pygame.Rect(0, 0, 64, 64))
+# NULL_IMAGE_SPRITE = pygame.image.load(project_path+"\\sprite0.png").subsurface(pygame.Rect(0, 0, 64, 64))
 
 # The Event Sprite we will use to know where we placed down an event
 EV_IMAGE = pygame.image.load(project_path+"\\ev.png")
@@ -223,31 +223,24 @@ while running:
             grid_x = camera_x + x
             grid_y = camera_y + y
             
-            # Draw image if the cell is occupied
-            if grid[grid_y][grid_x] is not None:
-                screen.blit(grid[grid_y][grid_x], (x * CELL_SIZE, y * CELL_SIZE))
+            # if layer0_encoded[grid_y][grid_x]=="block0.png" or layer1_encoded[grid_y][grid_x]=="sprite0.png":
+            #     screen.blit(NULL_IMAGE, (x * CELL_SIZE, y * CELL_SIZE))  
+            # else:  
+            screen.blit(grid[grid_y][grid_x], (x * CELL_SIZE, y * CELL_SIZE))
 
-                if len(event_data)>=3 and selectedlayer==1:
-                    
-                    for c in range(0, len(event_data), 3):
+            if selectedlayer==1 and layer1_encoded[grid_y][grid_x]=="sprite0.png":
+                screen.blit(NULL_IMAGE, (x * CELL_SIZE, y * CELL_SIZE))
 
-                        script, evy, evx = event_data[c:c+3]
-                        if int(evy) == grid_y and int(evx) == grid_x:
-                            # Draw the event icon so we know we have an event there
-                            screen.blit(EV_IMAGE, (x * CELL_SIZE, y * CELL_SIZE))
-                            break
-                        
-
+            if len(event_data)>=3 and selectedlayer==1:
                 
-            else: # dead code cuz we are never None
-                if selectedlayer==0:
-                    grid[grid_y][grid_x] = NULL_IMAGE
-                    #layer0_encoded[grid_y][grid_x] = "block0.png"
-                elif selectedlayer==1:
-                    grid[grid_y][grid_x] = NULL_IMAGE_SPRITE
-                    #layer1_encoded[grid_y][grid_x] = "sprite0.png"
-                    # Draw an empty cell as gray
-                    #pygame.draw.rect(screen, BLACK, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+                for c in range(0, len(event_data), 3):
+
+                    script, evy, evx = event_data[c:c+3]
+                    if int(evy) == grid_y and int(evx) == grid_x:
+                        # Draw the event icon so we know we have an event there
+                        screen.blit(EV_IMAGE, (x * CELL_SIZE, y * CELL_SIZE))
+                        break
+                    
             
             # Draw the cell border
             pygame.draw.rect(screen, WHITE, (x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE), 1)

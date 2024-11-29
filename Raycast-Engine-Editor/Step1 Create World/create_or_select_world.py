@@ -50,7 +50,7 @@ def get_world_names():
         return worldnames
 
 
-def upsert(entries):
+def upsert(entries, fog_color):
     global projects_path
     if entries["world_name"].get()=="":
         return
@@ -90,6 +90,8 @@ def upsert(entries):
             
             data["world_data"][index_to_update][f"VAR{i}"] = f"{keys[i]}:{entries[keys[i]].get()}"
 
+        data["world_data"][index_to_update][f"VAR{len(keys)}"] = f"fog_color:{fog_color}"
+        
         # Open a file in write mode ('w') and dump JSON data into it
         with open(worlds_data_path, 'w') as file:
             json.dump(data, file, indent=4)  # The indent argument adds pretty formatting
@@ -167,9 +169,8 @@ variables = {
     "world_name": str,
     "render_distance": int,
     "sky_self_movement": bool,
-    "walking_speed": int,
-    "turning_speed": int,
-    "background_music": str
+    "walking_speed": float,
+    "turning_speed": float
 }
 
 # Loop to create widgets for each variable
@@ -187,6 +188,10 @@ for row, (var_name, var_type) in enumerate(variables.items()):
         entry = tk.Entry(content_frame)
         entry.grid(row=row, column=1, padx=10, pady=5)
         entries[var_name] = entry
+    elif var_type == float:
+        entry = tk.Entry(content_frame)
+        entry.grid(row=row, column=1, padx=10, pady=5)
+        entries[var_name] = entry
     elif var_type == int:
         entry = tk.Entry(content_frame)
         entry.grid(row=row, column=1, padx=10, pady=5)
@@ -196,6 +201,7 @@ for row, (var_name, var_type) in enumerate(variables.items()):
         dropdown = ttk.Combobox(content_frame, textvariable=var, values=["true", "false"], state="readonly")
         dropdown.grid(row=row, column=1, padx=10, pady=5)
         entries[var_name] = dropdown
+
 
 # Variable to hold the selected fog color
 fog_color_var = tk.StringVar(value="#000000")  # Default color is black
@@ -227,7 +233,7 @@ def choose_color(color):
 # Function to handle the submit button click
 def submit():
     # Print the values
-    upsert(entries)
+    upsert(entries, fog_color_var.get())
 
 def delete():
     delete_world(entries)
