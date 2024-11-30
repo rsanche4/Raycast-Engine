@@ -1,6 +1,7 @@
 package myGamePack;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 // Screen Class
 // Description: This is the core screen calculation class, here is where we update the screen with the pixels we need to draw, the math and core of the engine happens here.
 public class Screen {	
@@ -9,7 +10,7 @@ public class Screen {
 	private String[] event_data;
 	private int mapWidth;
 	private int mapHeight;
-	private ArrayList<Texture> textures;
+	private HashMap<String, Texture> textures;
 	private int width;
 	private int height;
 	private int pixel_effect;
@@ -23,7 +24,7 @@ public class Screen {
 	private Texture skybox_default;
 	private ArrayList<Sprite> spriteArrTemp = new ArrayList<Sprite>();
 	private Sprite[] spriteArr = new Sprite[0];
-	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT, ArrayList<Texture> allTextures, int game_width, int game_height, int pixel_effect, int fog_col, String skyboxId, boolean skySelfMovement, int renderDistance, double world_light_factor) {
+	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT, HashMap<String, Texture> allTextures, int game_width, int game_height, int pixel_effect, int fog_col, String skyboxId, boolean skySelfMovement, int renderDistance, double world_light_factor) {
 		this.layer0 = layer0;
 		this.layer1 = layer1;
 		this.event_data = event_data;
@@ -40,12 +41,7 @@ public class Screen {
 		sprite_render_dist = 12*render_dist;
 		this.world_light_factor = world_light_factor;
 		in_doors = skyb.contains("block") ? true : skyb.contains("skybox") ? false : false;
-		for (Texture texture : allTextures) {
-			   if (texture.loc.contains(skyb)) {
-			     skybox_default = texture;
-			     break;
-			 }
-		}
+		skybox_default = allTextures.get(skyb);
         for (int i = 0; i < layer1.length; i++) {
             for (int j = 0; j < layer1[i].length; j++) { 
             	if (!layer1[i][j].contains("sprite0") && !layer1[i][j].contains("block")) {
@@ -113,8 +109,8 @@ public class Screen {
 	        double rayDirY = camera.yDir + camera.yPlane * cameraX;
 	        int mapX = (int)camera.xPos;
 	        int mapY = (int)camera.yPos;
-	        int playerX = (int)camera.xPos;
-	        int playerY = (int)camera.yPos;
+	       // int playerX = (int)camera.xPos;
+	       // int playerY = (int)camera.yPos;
 	        double sideDistX;
 	        double sideDistY;
 	        double deltaDistX = Math.sqrt(1 + (rayDirY*rayDirY) / (rayDirX*rayDirX));
@@ -176,13 +172,7 @@ public class Screen {
 	        	drawStart = 0;
 	        	drawEnd = 0;
 	        }
-	        Texture texBlock = null;
-	        for (Texture texture : textures) {
-				   if (texture.loc.contains(layer1[mapX][mapY])) {
-					   texBlock = texture;
-				     break;
-				 }
-			}
+	        Texture texBlock = textures.get(layer1[mapX][mapY]);
 	        double wallX;
 	        if(side==1) {
 	            wallX = (camera.xPos + ((mapY - camera.yPos + (1 - stepY) / 2) / rayDirY) * rayDirX);
@@ -240,22 +230,10 @@ public class Screen {
 	          int floorTexX, floorTexY;
 	          floorTexX = ((int)(Math.abs(currentFloorX) * texBlock.SIZE)) % texBlock.SIZE;
 	          floorTexY = ((int)(Math.abs(currentFloorY) * texBlock.SIZE)) % texBlock.SIZE;  	              
-		        Texture texTile = null;
-		        for (Texture texture : textures) {
-					   if (texture.loc.contains(layer0[mapX][mapY])) {
-						   texTile = texture;
-					     break;
-					 }
-				}
+		       // Texture texTile = textures.get(layer0[mapX][mapY]);
 	          int draw_tilex = Math.abs(((int) currentFloorX) % mapWidth);
 	          int draw_tiley = Math.abs(((int) currentFloorY) % mapHeight);
-		        Texture textureFloor = null;
-		        for (Texture texture : textures) {
-					   if (texture.loc.contains(layer0[draw_tilex][draw_tiley])) {
-						   textureFloor = texture;
-					     break;
-					 }
-				}	          
+		        Texture textureFloor = textures.get(layer0[draw_tilex][draw_tiley]);	          
 	          int new_color = textureFloor.pixels[floorTexX + (floorTexY * textureFloor.SIZE)];
 	            double percd_floor = currentDist/render_dist;
 	            if (percd_floor > 1) {percd_floor = 1;}

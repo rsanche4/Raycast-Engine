@@ -1,11 +1,15 @@
 import pygame
 import json
+import os
+
+sep = os.path.sep
+
 
 # Initialize Pygame
 pygame.init()
 # Initialize Pygame mixer
 pygame.mixer.init()
-sound = pygame.mixer.Sound('..\\save.mp3')
+sound = pygame.mixer.Sound(".."+sep+"save.mp3")
 # Constants
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
 GRID_SIZE = 500
@@ -19,19 +23,19 @@ GRAY = (200, 200, 200)
 BLACK = (0, 0, 0)
 
 # Load project folder
-project_path = open('..\\project_location.txt', 'r').read()
+project_path = open(".."+sep+"project_location.txt", "r").read()
 
 # Image for Empty Areas Not Textured on
-NULL_IMAGE = pygame.image.load(project_path+"\\block0.png")
+NULL_IMAGE = pygame.image.load(project_path+""+sep+"block0.png")
 
 # Image for Empty Areas in Layer 1 Not Textured on
-# NULL_IMAGE_SPRITE = pygame.image.load(project_path+"\\sprite0.png").subsurface(pygame.Rect(0, 0, 64, 64))
+# NULL_IMAGE_SPRITE = pygame.image.load(project_path+""+sep+"sprite0.png").subsurface(pygame.Rect(0, 0, 64, 64))
 
 # The Event Sprite we will use to know where we placed down an event
-EV_IMAGE = pygame.image.load(project_path+"\\ev.png")
+EV_IMAGE = pygame.image.load(project_path+""+sep+"ev.png")
 
 # Image for blocks (64x64 pixels)
-BLOCK_IMAGE = pygame.image.load(project_path+"\\block0.png")
+BLOCK_IMAGE = pygame.image.load(project_path+""+sep+"block0.png")
 # Initialize font for rendering text
 font = pygame.font.SysFont("Courier New", 36)  # Default font, size 36
 # Set up screen
@@ -48,11 +52,11 @@ layer1_encoded = [["sprite0.png" for _ in range(GRID_SIZE)] for _ in range(GRID_
 event_data = []
 # Now we have to load whatever was saved up on the database, if there was anything saved
 # Save the map if we press Enter
-worlds_data_path = project_path+ "\\worlds_data.json"
-with open(worlds_data_path, 'r') as file:
+worlds_data_path = project_path+ ""+sep+"worlds_data.json"
+with open(worlds_data_path, "r") as file:
     data = json.load(file)
 
-current_selected_world = current_selected_world = open('..\\.tempdata.txt', 'r').read()
+current_selected_world = current_selected_world = open(".."+sep+".tempdata.txt", "r").read()
 index_to_update = -1
 for j, allvars in enumerate(data["world_data"]):
     if allvars["VAR0"].split(":")[1]==current_selected_world:
@@ -61,14 +65,14 @@ for j, allvars in enumerate(data["world_data"]):
         break
                 
 if index_to_update!=-1:
-    # we selected the world. Now let's check if that world has a map cuz this is where we stored the map info
+    # we selected the world. Now let"s check if that world has a map cuz this is where we stored the map info
     if data["world_data"][index_to_update]["VAR7"]:
         # reconstruct array
         comma_string_layer0 = data["world_data"][index_to_update]["VAR7"].split(":")[1]
         flat_list = comma_string_layer0.split(",")
    
         layer0_encoded = [flat_list[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
-        part1_reconstruct = list(map(lambda imgstr: pygame.image.load(project_path+f"\\{imgstr}"), flat_list))
+        part1_reconstruct = list(map(lambda imgstr: pygame.image.load(project_path+sep+f"{imgstr}"), flat_list))
         grid0 = [part1_reconstruct[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
 
     if data["world_data"][index_to_update]["VAR8"]:
@@ -76,7 +80,7 @@ if index_to_update!=-1:
         flat_list = comma_string_layer1.split(",")
    
         layer1_encoded = [flat_list[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
-        part1_reconstruct = list(map(lambda imgstr: pygame.image.load(project_path+f"\\{imgstr}").subsurface(pygame.Rect(0, 0, 64, 64)), flat_list))
+        part1_reconstruct = list(map(lambda imgstr: pygame.image.load(project_path+sep+f"{imgstr}").subsurface(pygame.Rect(0, 0, 64, 64)), flat_list))
         grid1 = [part1_reconstruct[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
     
     if data["world_data"][index_to_update]["VAR9"]:
@@ -123,11 +127,11 @@ while running:
             
             if event.key == pygame.K_RETURN:
                 # Save the map if we press Enter
-                worlds_data_path = project_path+ "\\worlds_data.json"
-                with open(worlds_data_path, 'r') as file:
+                worlds_data_path = project_path+ ""+sep+"worlds_data.json"
+                with open(worlds_data_path, "r") as file:
                     data = json.load(file)
 
-                current_selected_world = current_selected_world = open('..\\.tempdata.txt', 'r').read()
+                current_selected_world = current_selected_world = open(".."+sep+".tempdata.txt", "r").read()
                 index_to_update = -1
                 for j, allvars in enumerate(data["world_data"]):
                     if allvars["VAR0"].split(":")[1]==current_selected_world:
@@ -142,13 +146,13 @@ while running:
                     data["world_data"][index_to_update]["VAR8"] = f"layer1:{",".join([item for sublist in layer1_encoded for item in sublist])}"
                     data["world_data"][index_to_update]["VAR9"] = f"event_data:{",".join(map(str, event_data))}"
 
-                    # Open a file in write mode ('w') and dump JSON data into it
-                    with open(worlds_data_path, 'w') as file:
+                    # Open a file in write mode ("w") and dump JSON data into it
+                    with open(worlds_data_path, "w") as file:
                         json.dump(data, file, indent=4)  # The indent argument adds pretty formatting
                         sound.play()
                 
         elif event.type == pygame.VIDEORESIZE:
-            # This will update the window size if it's resized
+            # This will update the window size if it"s resized
             VISIBLE_CELLS_X = event.w // CELL_SIZE
             VISIBLE_CELLS_Y = event.h // CELL_SIZE
             #screen = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
@@ -156,7 +160,7 @@ while running:
 
     mouse_pressed = pygame.mouse.get_pressed()
     if mouse_pressed[0] or mouse_pressed[2]:
-        BLOCK_IMAGE = pygame.image.load(project_path+"\\"+open('selected_texture.txt', 'r').read())
+        BLOCK_IMAGE = pygame.image.load(project_path+""+sep+""+open("selected_texture.txt", "r").read())
         
         crop_rect = pygame.Rect(0, 0, 64, 64)  # (x, y, width, height)
 
@@ -176,10 +180,10 @@ while running:
 
             # save up the image paths as well
             if selectedlayer==0:    
-                layer0_encoded[grid_y][grid_x] = open('selected_texture.txt', 'r').read()
+                layer0_encoded[grid_y][grid_x] = open("selected_texture.txt", "r").read()
 
             if selectedlayer==1:    
-                layer1_encoded[grid_y][grid_x] = open('selected_texture.txt', 'r').read()
+                layer1_encoded[grid_y][grid_x] = open("selected_texture.txt", "r").read()
 
 
 

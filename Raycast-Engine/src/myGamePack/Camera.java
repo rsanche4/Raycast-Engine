@@ -59,15 +59,15 @@ public class Camera implements KeyListener {
 	}
 	public void update(String[][] layer0, String[][] layer1, String[] event_data) {
 		if (forward) {
-			if (layer1[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos].contains("sprite0") && (int)xPos<Game.MAX_WORLD_LIMIT && (int)xPos>0)
+			if (layer1[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos].contains("sprite") && !layer1[(int)(xPos + xDir * MOVE_SPEED)][(int)yPos].contains("sprite1"))
 					xPos += xDir * MOVE_SPEED;
-			if (layer1[(int)xPos][(int)(yPos + yDir * MOVE_SPEED)].contains("sprite0") && (int)yPos<Game.MAX_WORLD_LIMIT && (int)yPos>0)
+			if (layer1[(int)xPos][(int)(yPos + yDir * MOVE_SPEED)].contains("sprite") && !layer1[(int)xPos][(int)(yPos + yDir * MOVE_SPEED)].contains("sprite1"))
 					yPos += yDir * MOVE_SPEED;
 		}
 		if (back) {
-			if(layer1[(int)(xPos - xDir * MOVE_SPEED)][(int)yPos].contains("sprite0") && (int)xPos<Game.MAX_WORLD_LIMIT && (int)xPos>0)
+			if(layer1[(int)(xPos - xDir * MOVE_SPEED)][(int)yPos].contains("sprite") && !layer1[(int)(xPos - xDir * MOVE_SPEED)][(int)yPos].contains("sprite1"))
 					xPos -= xDir * MOVE_SPEED;
-			if(layer1[(int)xPos][(int)(yPos - yDir * MOVE_SPEED)].contains("sprite0") && (int)yPos<Game.MAX_WORLD_LIMIT && (int)yPos>0)
+			if(layer1[(int)xPos][(int)(yPos - yDir * MOVE_SPEED)].contains("sprite") && !layer1[(int)xPos][(int)(yPos - yDir * MOVE_SPEED)].contains("sprite1"))
 					yPos -= yDir * MOVE_SPEED;
 		}
 		if(right) {

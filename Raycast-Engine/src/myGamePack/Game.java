@@ -11,7 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.JFrame;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,7 +24,7 @@ public class Game extends JFrame implements Runnable{
 	public static double world_light_factor = 1.0;
 	private static String game_title;
 	private static Double game_version;
-	private static int pixel_effect = 20;
+	private static int pixel_effect = 5;
 	private static String current_world;
 	private static int game_width;
 	private static int game_height;
@@ -43,14 +43,14 @@ public class Game extends JFrame implements Runnable{
 		image = new BufferedImage(game_width, game_height, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
         Path dataFolder = Paths.get("data");
-        ArrayList<Texture> allTextures = new ArrayList<Texture>();
+        HashMap<String, Texture> allTextures = new HashMap<>();
         try {
             Files.walkFileTree(dataFolder, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     if (file.toString().endsWith(".png")) {
-                        System.out.println("Found: " + file.toString());
-                        allTextures.add(new Texture(file.toString()));
+                        System.out.println("Found: " + file.getFileName().toString());
+                        allTextures.put(file.getFileName().toString(), new Texture(file.toString()));
                     }
                     return FileVisitResult.CONTINUE;
                 }

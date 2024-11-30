@@ -3,6 +3,8 @@ import os
 from PIL import Image, ImageTk
 import json
 
+sep = os.path.sep
+
 # Create the main window
 root = tk.Tk()
 
@@ -16,7 +18,7 @@ root.geometry(f"{w}x{h}+{posx}+{posy}")
 # root.resizable(False, False)
 
 # Define the directory path
-place_of_res = open('..\\project_location.txt', 'r').read()
+place_of_res = open(".."+sep+"project_location.txt", "r").read()
 
 # Get all files in the directory
 files = os.listdir(place_of_res)
@@ -57,17 +59,17 @@ def showimgselected(i, index):
     current_image=i
     blockchosen.config(image=current_image)
     # and also save that image in the database so we know we chose that
-    current_selected_world = open('..\\.tempdata.txt', 'r').read()
+    current_selected_world = open(".."+sep+".tempdata.txt", "r").read()
 
     if current_selected_world=="":
         return
     
-    worlds_data_path = place_of_res+ "\\worlds_data.json"
+    worlds_data_path = place_of_res+ ""+sep+"worlds_data.json"
 
-    with open(worlds_data_path, 'r') as file:
+    with open(worlds_data_path, "r") as file:
         data = json.load(file)  # Parse the JSON file into a Python dictionary 
 
-    # Check if it's there is anything in there, if not insert. otherwise already there by that name edit it, otherwise then push it.
+    # Check if it"s there is anything in there, if not insert. otherwise already there by that name edit it, otherwise then push it.
     index_to_update = -1
     for j, allvars in enumerate(data["world_data"]):
         if allvars["VAR0"].split(":")[1]==current_selected_world:
@@ -81,8 +83,8 @@ def showimgselected(i, index):
             
         data["world_data"][index_to_update]["VAR6"] = f"skybox_id:{image_files[index]}"
 
-        # Open a file in write mode ('w') and dump JSON data into it
-        with open(worlds_data_path, 'w') as file:
+        # Open a file in write mode ("w") and dump JSON data into it
+        with open(worlds_data_path, "w") as file:
             json.dump(data, file, indent=4)  # The indent argument adds pretty formatting
 
 
@@ -98,7 +100,7 @@ button_frame = tk.Frame(canvas)
 canvas.create_window((0, 0), window=button_frame, anchor="nw")
 
 # Define the grid dimensions (number of columns in each row)
-num_columns = 1  # Adjust this number to change the grid's width
+num_columns = 1  # Adjust this number to change the grid"s width
 
 # Add buttons for each image inside the button frame in a grid layout
 for index, img in enumerate(images):

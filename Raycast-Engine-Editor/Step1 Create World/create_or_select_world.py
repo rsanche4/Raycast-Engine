@@ -4,20 +4,23 @@ import colorsys
 from screeninfo import get_monitors
 from colorsys import rgb_to_hls
 import json
+import os
 
-projects_path = open('..\\project_location.txt', 'r').read()
+sep =  os.path.sep
+
+projects_path = open(".."+sep+"project_location.txt", "r").read()
 
 def delete_world(entries):
     global projects_path
     if entries["world_name"].get()=="":
         return
     
-    worlds_data_path = projects_path+ "\\worlds_data.json"
+    worlds_data_path = projects_path+ ""+sep+"worlds_data.json"
 
-    with open(worlds_data_path, 'r') as file:
+    with open(worlds_data_path, "r") as file:
         data = json.load(file)  # Parse the JSON file into a Python dictionary 
 
-    # Check if it's there is anything in there, if not insert. otherwise already there by that name edit it, otherwise then push it.
+    # Check if it"s there is anything in there, if not insert. otherwise already there by that name edit it, otherwise then push it.
     index_to_update = -1
     for j, allvars in enumerate(data["world_data"]):
         if allvars["VAR0"].split(":")[1]==entries["world_name"].get():
@@ -28,15 +31,15 @@ def delete_world(entries):
     if index_to_update!=-1:
         data["world_data"].pop(index_to_update)
     
-        # Open a file in write mode ('w') and dump JSON data into it
-        with open(worlds_data_path, 'w') as file:
+        # Open a file in write mode ("w") and dump JSON data into it
+        with open(worlds_data_path, "w") as file:
             json.dump(data, file, indent=4)  # The indent argument adds pretty formatting
 
 def get_world_names():
     global projects_path
-    worlds_data_path = projects_path+ "\\worlds_data.json"
+    worlds_data_path = projects_path+ ""+sep+"worlds_data.json"
 
-    with open(worlds_data_path, 'r') as file:
+    with open(worlds_data_path, "r") as file:
         data = json.load(file)  # Parse the JSON file into a Python dictionary
 
 
@@ -55,12 +58,12 @@ def upsert(entries, fog_color):
     if entries["world_name"].get()=="":
         return
     
-    worlds_data_path = projects_path+ "\\worlds_data.json"
+    worlds_data_path = projects_path+ ""+sep+"worlds_data.json"
 
-    with open(worlds_data_path, 'r') as file:
+    with open(worlds_data_path, "r") as file:
         data = json.load(file)  # Parse the JSON file into a Python dictionary 
 
-    # Check if it's there is anything in there, if not insert. otherwise already there by that name edit it, otherwise then push it.
+    # Check if it"s there is anything in there, if not insert. otherwise already there by that name edit it, otherwise then push it.
     index_to_update = -1
     for j, allvars in enumerate(data["world_data"]):
         if allvars["VAR0"].split(":")[1]==entries["world_name"].get():
@@ -70,7 +73,7 @@ def upsert(entries, fog_color):
     
     if index_to_update==-1:
         
-        data["world_data"].append({f"VAR{i}": "" for i in range(1000)})
+        data["world_data"].append({f"VAR{i}": "" for i in range(11)})
 
         keys = list(entries.keys())
         
@@ -78,8 +81,8 @@ def upsert(entries, fog_color):
             
             data["world_data"][len(data["world_data"])-1][f"VAR{i}"] = f"{keys[i]}:{entries[keys[i]].get()}"
 
-        # Open a file in write mode ('w') and dump JSON data into it
-        with open(worlds_data_path, 'w') as file:
+        # Open a file in write mode ("w") and dump JSON data into it
+        with open(worlds_data_path, "w") as file:
             json.dump(data, file, indent=4)  # The indent argument adds pretty formatting
 
     else:
@@ -92,20 +95,20 @@ def upsert(entries, fog_color):
 
         data["world_data"][index_to_update][f"VAR{len(keys)}"] = f"fog_color:{fog_color}"
         
-        # Open a file in write mode ('w') and dump JSON data into it
-        with open(worlds_data_path, 'w') as file:
+        # Open a file in write mode ("w") and dump JSON data into it
+        with open(worlds_data_path, "w") as file:
             json.dump(data, file, indent=4)  # The indent argument adds pretty formatting
 
     
     # All went smooth and we updated it, which means now save it in temp so the rest of UI knows which world we are updating
-    with open("..\\.tempdata.txt", "w") as tempfile:
+    with open(".."+sep+".tempdata.txt", "w") as tempfile:
         tempfile.write(entries["world_name"].get())
 
 
 
 def sort_colors_by_spectrum(rgb_list):
     def hex_to_rgb(hex_color):
-        hex_color = hex_color.lstrip('#')  
+        hex_color = hex_color.lstrip("#")  
         return tuple(int(hex_color[i:i + 2], 16) for i in (0, 2, 4))
 
     def rgb_to_hsl(rgb):

@@ -3,6 +3,8 @@ import random
 import os
 from PIL import Image, ImageTk
 
+sep = os.path.sep
+
 # Create the main window
 root = tk.Tk()
 
@@ -16,7 +18,7 @@ root.geometry(f"{w}x{h}+{posx}+{posy}")
 #root.resizable(False, False)
 
 # Define the directory path
-place_of_res = open('..\\project_location.txt', 'r').read()
+place_of_res = open(".."+sep+"project_location.txt", "r").read()
 
 # Get all files in the directory
 files = os.listdir(place_of_res)
@@ -55,7 +57,7 @@ button_frame = tk.Frame(canvas)
 canvas.create_window((0, 0), window=button_frame, anchor="nw")
 
 # Define the grid dimensions (number of columns in each row)
-num_columns = 8  # Adjust this number to change the grid's width
+num_columns = 8  # Adjust this number to change the grid"s width
 
 # Add buttons for each image inside the button frame in a grid layout
 for index, img in enumerate(images):

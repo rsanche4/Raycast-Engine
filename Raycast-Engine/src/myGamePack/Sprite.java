@@ -1,5 +1,5 @@
 package myGamePack;
-import java.util.ArrayList;
+import java.util.HashMap;
 // Sprite Class
 // Description: This class is for sprites mainly. This will be good for sorting them and then drawing them on the screen.
 public class Sprite implements Comparable<Sprite> {
@@ -12,13 +12,8 @@ public class Sprite implements Comparable<Sprite> {
 		spriteYPos = sy;
 		this.spritename = spritename;
 	}
-	public Texture getTexture(ArrayList<Texture> tex) {
-		for (Texture texture : tex) {
-			   if (texture.loc.contains(spritename)) {
-			     return texture;
-			 }
-		}
-		return null;
+	public Texture getTexture(HashMap<String, Texture> tex) {
+		return tex.get(spritename);
 	}
 	@Override
 	public int compareTo(Sprite otherSprite) {
