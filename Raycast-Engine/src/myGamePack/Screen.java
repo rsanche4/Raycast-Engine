@@ -285,8 +285,13 @@ public class Screen {
 	        	  for(int y = drawStartY; y < drawEndY; y++)
 	          {
 	              int d = (y) * 256 - height * 128 + spriteHeight * 128;
-	              int texY = ((d * spriteArr[i].getTexture(textures).SIZE) / spriteHeight) / 256;
-	              int color = spriteArr[i].getTexture(textures).pixels[Math.abs(texX + (texY * spriteArr[i].getTexture(textures).SIZE))];
+	              int texY = ((d * spriteArr[i].getTexture(textures).SIZE) / spriteHeight) / 256;	              
+	              double angleInDegrees = Math.toDegrees(Math.atan2(spriteArr[i].spriteYPos - camera.yPos, spriteArr[i].spriteXPos - camera.xPos));
+	           if (angleInDegrees < 0) {
+	               angleInDegrees += 360;
+	           }
+	           int direction = (int)((angleInDegrees + 225) % 360 / 90);
+	              int color = spriteArr[i].getTexture(textures).pixels[Math.abs(texX + ((texY+spriteArr[i].getTexture(textures).SIZE*direction) * spriteArr[i].getTexture(textures).SIZE))];
 		            if(color != 0x000000) {
 		            	double percd = spriteArr[i].spriteDist/sprite_render_dist;
 			            int rc = (int)((percd)*((fog_color & 0xFF0000) >> 16) + (1-percd)*((color & 0xFF0000) >> 16));

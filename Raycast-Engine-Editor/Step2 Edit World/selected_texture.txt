@@ -1,1 +1,1 @@
-block40.png
+sprite3.png
