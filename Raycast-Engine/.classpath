@@ -8,5 +8,6 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/LWJGL"/>
 	<classpathentry kind="lib" path="lib/json-20230618.jar"/>
+	<classpathentry kind="lib" path="lib/luaj-jse-3.0.2.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

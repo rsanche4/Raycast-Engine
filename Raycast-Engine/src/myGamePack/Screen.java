@@ -1,7 +1,12 @@
 package myGamePack;
+import java.io.FileReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+
+import org.luaj.vm2.Globals;
+import org.luaj.vm2.lib.jse.JsePlatform;
 // Screen Class
 // Description: This is the core screen calculation class, here is where we update the screen with the pixels we need to draw, the math and core of the engine happens here.
 public class Screen {	
@@ -305,6 +310,19 @@ public class Screen {
 	          }
 	        }
 	    }
+	    
+	    
+        try {
+            // Create a Lua interpreter
+            Globals globals = JsePlatform.standardGlobals();
+
+            // Load and run the Lua script
+            Reader scriptReader = new FileReader("C:\\Users\\rsanz\\OneDrive\\Documents\\RaycastEngine\\Raycast-Engine\\Raycast-Engine\\data\\helloworld.lua");
+            globals.load(scriptReader, "C:\\Users\\rsanz\\OneDrive\\Documents\\RaycastEngine\\Raycast-Engine\\Raycast-Engine\\data\\helloworld.lua").call();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+	    
 	    return pixels;
 	}
 }

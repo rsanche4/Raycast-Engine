@@ -5,7 +5,7 @@ TODO:
 - write docs. Explain sprite1 is special. Why we chose no collision for sprites. explain in docs or something that directions are tricky. For npcs that move and change where they are looking at, u change the sprite to a different. So explain that good stuff. Example of what i mean included. In the editor, it shows u where the direction of the sprite is.
 
 
-Upcming in future:
+Upcoming in future:
 Here are descriptions for your projects:
 
 The Babel Library

@@ -150,6 +150,62 @@ while running:
                     with open(worlds_data_path, "w") as file:
                         json.dump(data, file, indent=4)  # The indent argument adds pretty formatting
                         sound.play()
+
+        elif event.type == pygame.MOUSEBUTTONDOWN and selectedlayer==1 and event.button == 3: # right click and its the selected layer for sprites and events
+            BLOCK_IMAGE = pygame.image.load(project_path+""+sep+""+open("selected_texture.txt", "r").read())
+        
+            crop_rect = pygame.Rect(0, 0, 64, 64)  # (x, y, width, height)
+
+            # Crop the image to the top 64x64
+            cropped_image = BLOCK_IMAGE.subsurface(crop_rect)
+
+            # Get mouse position and convert to grid coordinates
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            grid_x = (mouse_x // CELL_SIZE) + camera_x
+            grid_y = (mouse_y // CELL_SIZE) + camera_y
+
+            # Check if clicked within the grid bounds
+            if 0 <= grid_x < GRID_SIZE and 0 <= grid_y < GRID_SIZE:
+                # Place the image in the clicked cell
+                grid[grid_y][grid_x] = cropped_image
+
+
+                # save up the image paths as well
+                if selectedlayer==0:    
+                    layer0_encoded[grid_y][grid_x] = open("selected_texture.txt", "r").read()
+
+                if selectedlayer==1:    
+                    layer1_encoded[grid_y][grid_x] = open("selected_texture.txt", "r").read()
+
+            import event_editor
+            file_selected_location = event_editor.run_event_editor()
+            if file_selected_location:
+                # if file_selected_location == "delete_script.lua":
+                    
+                #     print("I am here4")
+                #     for i in range(0, len(event_data), 3):
+                #         script, y, x = event_data[i:i+3]
+                #         print("I am here5")
+                #         if int(y) == grid_y and int(x) == grid_x:
+                #             # Remove the script with the matching coordinates
+                #             print("I am here6")
+                #             del event_data[i:i+4]
+                #             break
+                #             # Exit after deletion
+                #else:
+                    # Check if the coordinates already exist in event_data
+                updated = False
+                for i in range(0, len(event_data), 3):
+                    script, y, x = event_data[i:i+3]
+                    if int(y) == grid_y and int(x) == grid_x:
+                        # Update the name of the script for the existing coordinates
+                        event_data[i] = file_selected_location
+                        updated = True
+                        break
+                if not updated:
+                    # Add the new script and coordinates at the end
+                    event_data.extend([file_selected_location, grid_y, grid_x])
+
                 
         elif event.type == pygame.VIDEORESIZE:
             # This will update the window size if it"s resized
@@ -159,7 +215,7 @@ while running:
     
 
     mouse_pressed = pygame.mouse.get_pressed()
-    if mouse_pressed[0] or mouse_pressed[2]:
+    if mouse_pressed[0]:
         BLOCK_IMAGE = pygame.image.load(project_path+""+sep+""+open("selected_texture.txt", "r").read())
         
         crop_rect = pygame.Rect(0, 0, 64, 64)  # (x, y, width, height)
@@ -189,35 +245,6 @@ while running:
 
 
 
-        if selectedlayer==1 and mouse_pressed[2]: # we are in layer1 and we right clicked
-            
-            import event_editor
-            file_selected_location = event_editor.run_event_editor()
-
-            if file_selected_location:
-
-                if file_selected_location == "delete_script.lua":
-                    
-                    
-                    for i in range(0, len(event_data), 3):
-                        script, y, x = event_data[i:i+3]
-                        if int(y) == grid_y and int(x) == grid_x:
-                            # Remove the script with the matching coordinates
-                            del event_data[i:i+4]
-                            # Exit after deletion
-                else:
-                    # Check if the coordinates already exist in event_data
-                    updated = False
-                    for i in range(0, len(event_data), 3):
-                        script, y, x = event_data[i:i+3]
-                        if int(y) == grid_y and int(x) == grid_x:
-                            # Update the name of the script for the existing coordinates
-                            event_data[i] = file_selected_location
-                            updated = True
-                            break
-                    if not updated:
-                        # Add the new script and coordinates at the end
-                        event_data.extend([file_selected_location, grid_y, grid_x])
 
 
     # Draw grid cells with camera offset
