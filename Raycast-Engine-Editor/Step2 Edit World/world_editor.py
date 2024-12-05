@@ -1,6 +1,7 @@
 import pygame
 import json
 import os
+import threading
 
 sep = os.path.sep
 
@@ -66,22 +67,77 @@ for j, allvars in enumerate(data["world_data"]):
                 
 if index_to_update!=-1:
     # we selected the world. Now let"s check if that world has a map cuz this is where we stored the map info
+
+
+
+    print("Loading the world... this may take a few seconds.")
+        
+    def load_layer_with_threads(flat_list, grid_size, project_path, sep, subsurface=None):
+        """
+        Load a layer using threads for optimized performance.
+        """
+        # Shared result lists
+        layer_encoded = [None] * grid_size
+        grid = [None] * grid_size
+
+        def load_slice(start, end, index):
+            # Slice the flat list
+            slice_flat_list = flat_list[start:end]
+            # Map image loading for the slice
+            if subsurface:
+                part_reconstruct = [
+                    pygame.image.load(project_path + sep + f"{imgstr}").subsurface(pygame.Rect(0, 0, 64, 64))
+                    for imgstr in slice_flat_list
+                ]
+            else:
+                part_reconstruct = [
+                    pygame.image.load(project_path + sep + f"{imgstr}")
+                    for imgstr in slice_flat_list
+                ]
+            # Reconstruct layer encoding and grid slice
+            layer_encoded[index] = slice_flat_list
+            grid[index] = part_reconstruct
+
+        # Create threads for each part of the data
+        thread_list = []
+        slice_size = len(flat_list) // grid_size
+        for i in range(grid_size):
+            start = i * slice_size
+            end = start + slice_size
+            thread = threading.Thread(target=load_slice, args=(start, end, i))
+            thread_list.append(thread)
+            thread.start()
+
+        # Wait for all threads to complete
+        for thread in thread_list:
+            thread.join()
+
+        return layer_encoded, grid
+
+    def load_layer_0(world_data):
+        global grid0
+        global layer0_encoded
+        flat_list = world_data.split(",")
+        layer0_encoded, grid0 = load_layer_with_threads(flat_list, GRID_SIZE, project_path, sep)
+
+    def load_layer_1(world_data):
+        global grid1
+        global layer1_encoded
+        flat_list = world_data.split(",")
+        layer1_encoded, grid1 = load_layer_with_threads(flat_list, GRID_SIZE, project_path, sep, subsurface=True)
+
+
     if data["world_data"][index_to_update]["VAR7"]:
         # reconstruct array
-        comma_string_layer0 = data["world_data"][index_to_update]["VAR7"].split(":")[1]
-        flat_list = comma_string_layer0.split(",")
-   
-        layer0_encoded = [flat_list[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
-        part1_reconstruct = list(map(lambda imgstr: pygame.image.load(project_path+sep+f"{imgstr}"), flat_list))
-        grid0 = [part1_reconstruct[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
 
+        comma_string_layer0 = data["world_data"][index_to_update]["VAR7"].split(":")[1]
+        thread1 = threading.Thread(target=load_layer_0, args=(comma_string_layer0,))
+        thread1.start()
+        
     if data["world_data"][index_to_update]["VAR8"]:
         comma_string_layer1 = data["world_data"][index_to_update]["VAR8"].split(":")[1]
-        flat_list = comma_string_layer1.split(",")
-   
-        layer1_encoded = [flat_list[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
-        part1_reconstruct = list(map(lambda imgstr: pygame.image.load(project_path+sep+f"{imgstr}").subsurface(pygame.Rect(0, 0, 64, 64)), flat_list))
-        grid1 = [part1_reconstruct[i * GRID_SIZE:(i + 1) * GRID_SIZE] for i in range(GRID_SIZE)]
+        thread2 = threading.Thread(target=load_layer_1, args=(comma_string_layer1,))
+        thread2.start()
     
     if data["world_data"][index_to_update]["VAR9"]:
         part1_reconstruct = data["world_data"][index_to_update]["VAR9"].split(":")[1]
@@ -90,6 +146,10 @@ if index_to_update!=-1:
             event_data = []
 
 
+thread1.join()
+thread2.join()
+
+print("Finished loading your world!")
 
 grid = grid0
 selectedlayer = 0
