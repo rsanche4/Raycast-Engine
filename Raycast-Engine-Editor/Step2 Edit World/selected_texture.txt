@@ -1,1 +1,1 @@
-sprite3.png
+sprite0.png

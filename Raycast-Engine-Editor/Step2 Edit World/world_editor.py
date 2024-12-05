@@ -44,9 +44,9 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE
 pygame.display.set_caption("World Editor")
 
 # Create a grid with empty cells (0 means empty, 1 means occupied by image)
-grid0 = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+grid0 = [[NULL_IMAGE for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 layer0_encoded = [["block0.png" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)] #this is for the images so i can store it in a place
-grid1 = [[None for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+grid1 = [[NULL_IMAGE for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 layer1_encoded = [["sprite0.png" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
 event_data = []
