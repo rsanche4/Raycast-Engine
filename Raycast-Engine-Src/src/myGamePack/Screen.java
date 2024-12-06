@@ -344,8 +344,6 @@ public class Screen {
 		run_user_scripts();
 	}
 	
-	// Ok for multiplayer, and network stuff: just allow to send requests to an API and get a request back.	Maybe wait or something?
-	
 	public String getKeyPressed() {
 		if (camera.left) {
 			return "left_arrow";

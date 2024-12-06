@@ -13,6 +13,7 @@ Before we head right into that, let me show you a quick demo of the famous limin
 This is only a quick and simple project showcasing all the cool things you can accomplish! Anyways, let's get into the tutorial.
 
 TODO FOR FUTURE:
-- I need to finish the Yume Nikki World kind of game.
+- I need to finish the Yume Nikki World kind of game. Also in addition to all maps, add a door in the nexus leading to a school cuz that was part of the later yume nikki I never got a chance to add it.
 - Enable multiplayer to allow Maya to join and friends to play.
+- Allow changing colors for fonts for text we want to display.
 - Finish the documentation for the engine. So just have that as our backup example. If we want to create new game etc, its really easy with the editor, just show how to do that from scratch. Some basic files that are needed in the documentation.
