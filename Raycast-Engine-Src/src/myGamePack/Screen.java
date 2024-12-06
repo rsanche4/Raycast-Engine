@@ -35,7 +35,9 @@ public class Screen {
 	private int[] pixels;
 	private int frames;
 	private Camera camera;
-
+	private Sound current_bgm;
+	private HashMap<String, String> user_temp_variables = new HashMap<>();
+	
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
 			HashMap<String, Texture> allTextures, int game_width, int game_height, int pixel_effect, int fog_col,
 			String skyboxId, boolean skySelfMovement, int renderDistance, double world_light_factor, int[] pixels,
@@ -89,7 +91,6 @@ public class Screen {
 
 	public void update(int frames) {
 		this.frames = frames;
-		run_user_scripts();
 		double darkened_factor = world_light_factor;
 		if (!in_doors) {
 			Texture sky = skybox_default;
@@ -339,8 +340,37 @@ public class Screen {
 					}
 			}
 		}
+		run_user_scripts();
 	}
-
+	
+	// Get Keys Pressed
+	// Ok for multiplayer, and network stuff: just allow to send requests to an API and get a request back.	
+	public String getKeyPressed() {
+		if (camera.left) {
+			return "left_arrow";
+		} else if (camera.right) {
+			return "right_arrow";
+		} else if (camera.back) {
+			return "down_arrow";
+		} else if (camera.forward) {
+			return "up_arrow";
+		}
+		return null;
+	}
+	
+	public String getKeyReleased() {
+		if (!camera.left) {
+			return "left_arrow";
+		} else if (!camera.right) {
+			return "right_arrow";
+		} else if (!camera.back) {
+			return "down_arrow";
+		} else if (!camera.forward) {
+			return "up_arrow";
+		}
+		return null;
+	}
+	
 	public String getSpriteTextureId(int index) {
 		return this.spriteArr[index].spritename;
 	}
@@ -431,12 +461,17 @@ public class Screen {
 		return height;
 	}
 
-	public String getScreenPixels() {
-		return String.join(", ", Arrays.toString(pixels));
-	}
-
-	public void setScreenPixels(String comma_pixels) {
-		pixels = Arrays.stream(comma_pixels.split(",")).mapToInt(Integer::parseInt).toArray();
+	public void addUIToScreen(String textureName, int pos_x, int pos_y) {
+        for (int y = 0; y < textures.get(textureName).IMG_HEI; y++) {
+            for (int x = 0; x < textures.get(textureName).IMG_WID; x++) {
+                int screenX = pos_x + x;
+                int screenY = pos_y + y;
+                int screenIndex = screenY * width + screenX;  
+                if (screenX >= 0 && screenX < width && screenY >= 0 && screenY < height && textures.get(textureName).pixels[y * textures.get(textureName).IMG_WID + x]!=0x000000) {
+                    pixels[screenIndex] = textures.get(textureName).pixels[y * textures.get(textureName).IMG_WID + x]; 
+                }
+            }
+        }
 	}
 
 	public String getSkybox() {
@@ -499,7 +534,7 @@ public class Screen {
 	}
 
 	public String getEventList() {
-		return String.join(", ", event_data);
+		return String.join(",", event_data);
 	}
 
 	public void setEventList(String comma_seperated_eventlist) {
@@ -557,6 +592,97 @@ public class Screen {
 	public void setFPS(double newFPS) {
 		Game.FPS = newFPS;
 	}
+	
+	public void playBGM(String bgm_path, boolean loop) {
+		current_bgm = new Sound("data/"+bgm_path, loop);
+	}
+	
+	public void stopBGM() {
+		current_bgm.stopSound();
+	}
+	
+	public void writeTempVar(String key, String val) {
+		user_temp_variables.put(key, val);
+	}
+	
+	public String readTempVar(String key) {
+		return user_temp_variables.get(key);
+	}
+	
+	public void displayText(String text, int pos_x, int pos_y, String fontfile) {
+	    text = text.toLowerCase(); 
+	    int[] font_pixels = textures.get(fontfile).pixels; 
+	    int cursor = pos_x;  
+	    
+	    int font_original_pixel_size = textures.get(fontfile).IMG_HEI / 42; 
+	    
+	    for (int i = 0; i < text.length(); i++) {
+	        int letter_location_in_fontpng = -1;  
+	        switch (text.charAt(i)) {
+	            case 'a': letter_location_in_fontpng = 0; break;
+	            case 'b': letter_location_in_fontpng = 1; break;
+	            case 'c': letter_location_in_fontpng = 2; break;
+	            case 'd': letter_location_in_fontpng = 3; break;
+	            case 'e': letter_location_in_fontpng = 4; break;
+	            case 'f': letter_location_in_fontpng = 5; break;
+	            case 'g': letter_location_in_fontpng = 6; break;
+	            case 'h': letter_location_in_fontpng = 7; break;
+	            case 'i': letter_location_in_fontpng = 8; break;
+	            case 'j': letter_location_in_fontpng = 9; break;
+	            case 'k': letter_location_in_fontpng = 10; break;
+	            case 'l': letter_location_in_fontpng = 11; break;
+	            case 'm': letter_location_in_fontpng = 12; break;
+	            case 'n': letter_location_in_fontpng = 13; break;
+	            case 'o': letter_location_in_fontpng = 14; break;
+	            case 'p': letter_location_in_fontpng = 15; break;
+	            case 'q': letter_location_in_fontpng = 16; break;
+	            case 'r': letter_location_in_fontpng = 17; break;
+	            case 's': letter_location_in_fontpng = 18; break;
+	            case 't': letter_location_in_fontpng = 19; break;
+	            case 'u': letter_location_in_fontpng = 20; break;
+	            case 'v': letter_location_in_fontpng = 21; break;
+	            case 'w': letter_location_in_fontpng = 22; break;
+	            case 'x': letter_location_in_fontpng = 23; break;
+	            case 'y': letter_location_in_fontpng = 24; break;
+	            case 'z': letter_location_in_fontpng = 25; break;
+	            case '0': letter_location_in_fontpng = 26; break;
+	            case '1': letter_location_in_fontpng = 27; break;
+	            case '2': letter_location_in_fontpng = 28; break;
+	            case '3': letter_location_in_fontpng = 29; break;
+	            case '4': letter_location_in_fontpng = 30; break;
+	            case '5': letter_location_in_fontpng = 31; break;
+	            case '6': letter_location_in_fontpng = 32; break;
+	            case '7': letter_location_in_fontpng = 33; break;
+	            case '8': letter_location_in_fontpng = 34; break;
+	            case '9': letter_location_in_fontpng = 35; break;
+	            case ',': letter_location_in_fontpng = 36; break;
+	            case '.': letter_location_in_fontpng = 36; break;
+	            case '\'': letter_location_in_fontpng = 37; break;
+	            case '"': letter_location_in_fontpng = 37; break;
+	            case '?': letter_location_in_fontpng = 39; break;
+	            case '!': letter_location_in_fontpng = 38; break;
+	            case '(': letter_location_in_fontpng = 41; break;
+	            case ')': letter_location_in_fontpng = 40; break;
+	            default: letter_location_in_fontpng = -1; break;
+	        }
+
+	        if (letter_location_in_fontpng > -1) {
+	            for (int j = 0; j < font_original_pixel_size; j++) {
+	                for (int k = 0; k < font_original_pixel_size; k++) {
+	                    int font_index = (letter_location_in_fontpng * font_original_pixel_size + j) * font_original_pixel_size + k;
+	                    int ind = (pos_y + j) * width + (cursor + k); 
+
+	                    if (ind < width * height && font_pixels[font_index]!=0x000000) {
+	                        pixels[ind] = font_pixels[font_index];
+	                    }
+	                }
+	            }
+	        }
+
+	        cursor += font_original_pixel_size;
+	    }
+	}
+
 
 	private void run_user_scripts() {
 

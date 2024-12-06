@@ -11,15 +11,17 @@ public class Texture {
 	public int[] pixels;
 	public String loc;
 	public int SIZE = 64;
+	public int IMG_WID;
+	public int IMG_HEI;
 
 	public Texture(String file_location) {
 		loc = file_location;
 		try {
 			BufferedImage image = ImageIO.read(new File(loc));
-			int w = image.getWidth();
-			int h = image.getHeight();
-			pixels = new int[w * h];
-			image.getRGB(0, 0, w, h, pixels, 0, w);
+			IMG_WID = image.getWidth();
+			IMG_HEI = image.getHeight();
+			pixels = new int[IMG_WID * IMG_HEI];
+			image.getRGB(0, 0, IMG_WID, IMG_HEI, pixels, 0, IMG_WID);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
