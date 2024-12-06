@@ -36,6 +36,7 @@ public class Screen {
 	private int frames;
 	private Camera camera;
 	private Sound current_bgm;
+	private Sound current_sfe;
 	private HashMap<String, String> user_temp_variables = new HashMap<>();
 	
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
@@ -343,8 +344,8 @@ public class Screen {
 		run_user_scripts();
 	}
 	
-	// Get Keys Pressed
-	// Ok for multiplayer, and network stuff: just allow to send requests to an API and get a request back.	
+	// Ok for multiplayer, and network stuff: just allow to send requests to an API and get a request back.	Maybe wait or something?
+	
 	public String getKeyPressed() {
 		if (camera.left) {
 			return "left_arrow";
@@ -354,6 +355,8 @@ public class Screen {
 			return "down_arrow";
 		} else if (camera.forward) {
 			return "up_arrow";
+		} else if (camera.enter) {
+			return "enter";
 		}
 		return null;
 	}
@@ -367,6 +370,8 @@ public class Screen {
 			return "down_arrow";
 		} else if (!camera.forward) {
 			return "up_arrow";
+		} else if (!camera.enter) {
+			return "enter";
 		}
 		return null;
 	}
@@ -599,6 +604,19 @@ public class Screen {
 	
 	public void stopBGM() {
 		current_bgm.stopSound();
+	}
+	
+	public void playSE(String bgm_path, boolean loop) {
+		current_sfe = new Sound("data/"+bgm_path, loop);
+	}
+	
+	public void stopSE() {
+		current_sfe.stopSound();
+	}
+	
+	
+	public void systemExit() {
+		System.exit(0);
 	}
 	
 	public void writeTempVar(String key, String val) {

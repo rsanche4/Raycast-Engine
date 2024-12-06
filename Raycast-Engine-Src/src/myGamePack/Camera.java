@@ -7,7 +7,7 @@ import java.awt.event.KeyListener;
 // Description: The class that allows for movement of the player when inputting keys. Main keys are detected here.
 public class Camera implements KeyListener {
 	public double xPos, yPos, xDir, yDir, xPlane, yPlane;
-	public boolean left, right, forward, back;
+	public boolean left, right, forward, back, enter;
 	public double MOVE_SPEED;
 	public double ROTATION_SPEED;
 	public double player_degree = 0;
@@ -32,17 +32,20 @@ public class Camera implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if ((e.getKeyCode() == KeyEvent.VK_LEFT)) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			left = true;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_RIGHT)) {
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			right = true;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_UP)) {
+		if (e.getKeyCode() == KeyEvent.VK_UP) {
 			forward = true;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_DOWN)) {
+		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			back = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			enter = true;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
@@ -51,17 +54,20 @@ public class Camera implements KeyListener {
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if ((e.getKeyCode() == KeyEvent.VK_LEFT)) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			left = false;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_RIGHT)) {
+		if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			right = false;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_UP)) {
+		if (e.getKeyCode() == KeyEvent.VK_UP) {
 			forward = false;
 		}
-		if ((e.getKeyCode() == KeyEvent.VK_DOWN)) {
+		if (e.getKeyCode() == KeyEvent.VK_DOWN) {
 			back = false;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+			enter = false;
 		}
 	}
 
