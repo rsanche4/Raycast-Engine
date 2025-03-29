@@ -4,9 +4,7 @@ Welcome to the **Raycast Engine**! This project is a lightweight and simple 3D r
 
 The Raycast Engine is typically used in first-person perspective games or simulations and can render walls, floors, and ceilings, creating the illusion of a 3D world on a 2D screen. Despite its simplicity, this engine allows for the creation of dynamic and immersive experiences with basic 3D elements like textures, lighting effects, and object placement.
 
-In the docs folder, you will find Installation guides, API specifications, and how to code your own games using this simple engine!
-
-Before you head over there, let me show you a quick demo of the famous liminal myth The Backrooms rendered in this engine.
+Let me show you a quick demo of the famous liminal myth The Backrooms rendered in this engine.
 
 [![Video Title](https://img.youtube.com/vi/9v8R9GMLWoM/0.jpg)](https://youtu.be/9v8R9GMLWoM)
 
