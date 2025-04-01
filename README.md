@@ -6,6 +6,8 @@ The Raycast Engine is typically used in first-person perspective games or simula
 
 Let me show you a quick demo!
 
-[Demo](Demo-Showcase.mp4)
+<video width="600" controls>
+  <source src="Demo-Showcase.mp4" type="video/mp4">
+</video>
 
 Anyways, good luck and raycast away!
