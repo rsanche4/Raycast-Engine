@@ -11,8 +11,9 @@ public class Sprite implements Comparable<Sprite> {
 	public String spritename;
 
 	public Sprite(String spritename, double sx, double sy) {
-		spriteXPos = sx;
-		spriteYPos = sy;
+		double centering_offset_inblock = 0.5;
+		spriteXPos = sx+centering_offset_inblock;
+		spriteYPos = sy+centering_offset_inblock;
 		this.spritename = spritename;
 	}
 
