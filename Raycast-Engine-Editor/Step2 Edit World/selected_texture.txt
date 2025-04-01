@@ -1,1 +1,1 @@
-block_door_room.png
+sprite_sign.png

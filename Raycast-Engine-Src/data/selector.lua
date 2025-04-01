@@ -34,6 +34,7 @@ if REAPI:getKeyPressed() == "enter" then
             REAPI:writeTempVar("isMenu", "0")
             REAPI:stopBGM()
             REAPI:playSE("menu_enter.WAV", false)
+            REAPI:playBGM("outside.wav", true)
             REAPI:endScript(254, 255)
             REAPI:endScript(event_x, event_y)
         end
