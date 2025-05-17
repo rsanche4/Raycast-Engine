@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,10 +31,12 @@ public class Game extends JFrame implements Runnable {
 	public static double world_light_factor = 1.0;
 	private static String game_title;
 	private static String game_version;
-	private static int pixel_effect = 4;
+	private static int pixel_effect = 1;
 	private static String current_world;
-	private static int game_width=800;
-	private static int game_height=600;
+	private static int game_width=320;
+	private static int game_height=200;
+	private static int SCREEN_W;
+	private static int SCREEN_H;
 	private static String[][] layer0;
 	private static String[][] layer1;
 	private static String[] event_data;
@@ -43,11 +46,12 @@ public class Game extends JFrame implements Runnable {
 	private Camera camera;
 	private Screen screen;
 	private boolean running;
+	private int[] gamepixels;
 
 	public Game(String worldName, int renderDistance, boolean skySelfMovement, double walkingSpeed, double turningSpeed,
 			String skyboxId, int fog_col, int renderSpriteDist) {
 		thread = new Thread(this);
-		image = new BufferedImage(game_width, game_height, BufferedImage.TYPE_INT_RGB);
+		image = new BufferedImage(SCREEN_W, SCREEN_H, BufferedImage.TYPE_INT_RGB);
 		pixels = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 		Path dataFolder = Paths.get("data");
 		HashMap<String, Texture> allTextures = new HashMap<>();
@@ -70,12 +74,14 @@ public class Game extends JFrame implements Runnable {
 				layer1[i][0] = "block0.png";
 				layer1[i][layer1[i].length - 1] = "block0.png";
 			}
+			gamepixels = new int[game_width*game_width];
 			screen = new Screen(layer0, layer1, event_data, MAX_WORLD_LIMIT, allTextures, game_width, game_height,
 					pixel_effect, fog_col, skyboxId, skySelfMovement, renderDistance, world_light_factor, pixels,
-					camera, renderSpriteDist);
+					camera, renderSpriteDist, SCREEN_W, SCREEN_H, gamepixels);
 			addKeyListener(camera);
-			setSize(game_width, game_height);
-			setResizable(false);
+			//setSize(game_width, game_height);
+			setSize(SCREEN_W, SCREEN_H);
+			setResizable(true);
 			setTitle(game_title + " " + game_version.toString());
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setBackground(Color.black);
@@ -154,6 +160,8 @@ public class Game extends JFrame implements Runnable {
 			game_title = config.get("game_title");
 			game_version = config.get("game_version");
 			current_world = config.get("world_init");
+			SCREEN_W = Integer.parseInt(config.get("game_width"));
+			SCREEN_H = Integer.parseInt(config.get("game_height"));
 			String content = new String(Files.readAllBytes(Paths.get("data/worlds_data.json")));
 			JSONObject jsonObject = new JSONObject(content);
 			JSONArray worlds_data = jsonObject.getJSONArray("world_data");

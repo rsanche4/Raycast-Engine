@@ -368,7 +368,7 @@ BLACK = (0, 0, 0)
 project_path = open(".."+sep+"project_location.txt", "r").read()
 
 # Image for Empty Areas Not Textured on
-NULL_IMAGE = pygame.image.load(project_path+""+sep+"block0.png")
+NULL_IMAGE = pygame.image.load(project_path+""+sep+"block00.png")
 
 # Image for Empty Areas in Layer 1 Not Textured on
 # NULL_IMAGE_SPRITE = pygame.image.load(project_path+""+sep+"sprite0.png").subsurface(pygame.Rect(0, 0, 64, 64))
@@ -377,7 +377,7 @@ NULL_IMAGE = pygame.image.load(project_path+""+sep+"block0.png")
 EV_IMAGE = pygame.image.load(project_path+""+sep+"ev.png")
 
 # Image for blocks (64x64 pixels)
-BLOCK_IMAGE = pygame.image.load(project_path+""+sep+"block0.png")
+BLOCK_IMAGE = pygame.image.load(project_path+""+sep+"block00.png")
 # Initialize font for rendering text
 font = pygame.font.SysFont("Courier New", 36)  # Default font, size 36
 # Set up screen
@@ -387,7 +387,7 @@ pygame.display.set_caption("World Editor")
 
 # Create a grid with empty cells (0 means empty, 1 means occupied by image)
 grid0 = [[NULL_IMAGE for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
-layer0_encoded = [["block0.png" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)] #this is for the images so i can store it in a place
+layer0_encoded = [["block00.png" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)] #this is for the images so i can store it in a place
 grid1 = [[NULL_IMAGE for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 layer1_encoded = [["sprite0.png" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
@@ -465,28 +465,29 @@ if index_to_update!=-1:
         flat_list = world_data.split(",")
         layer1_encoded, grid1 = load_layer_with_threads(flat_list, GRID_SIZE, project_path, sep, subsurface=True)
 
-
+    join_flag1 = False
+    join_flag2 = False
     if data["world_data"][index_to_update]["VAR7"]:
         # reconstruct array
 
         comma_string_layer0 = data["world_data"][index_to_update]["VAR7"].split(":")[1]
         thread1 = threading.Thread(target=load_layer_0, args=(comma_string_layer0,))
         thread1.start()
-        
+        join_flag1 = True
     if data["world_data"][index_to_update]["VAR8"]:
         comma_string_layer1 = data["world_data"][index_to_update]["VAR8"].split(":")[1]
         thread2 = threading.Thread(target=load_layer_1, args=(comma_string_layer1,))
         thread2.start()
-    
+        join_flag2 = True
     if data["world_data"][index_to_update]["VAR9"]:
         part1_reconstruct = data["world_data"][index_to_update]["VAR9"].split(":")[1]
         event_data = part1_reconstruct.split(",")
         if len(event_data)==1: # there needs to be 3 at least or nothing
             event_data = []
 
-
-thread1.join()
-thread2.join()
+if join_flag1 and join_flag2:
+    thread1.join()
+    thread2.join()
 
 print("Finished loading your world!")
 

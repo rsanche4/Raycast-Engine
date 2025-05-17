@@ -26,11 +26,13 @@ files = os.listdir(place_of_res)
 layer_options = ["Blocks", "Sprites"]
 
 # Filter out only the block#.png files
-image_files = [f for f in files if f.startswith("block") and f.endswith(".png")]
+image_files = [f for f in files if f.startswith("block") and f.endswith(".png") and f!="block00.png"]
 
 # Load the images
 images = []
 for image_file in image_files:
+    if "block00.png"==image_file:
+        continue
     image_path = os.path.join(place_of_res, image_file)
     images.append(tk.PhotoImage(file=image_path))
 
@@ -80,7 +82,7 @@ def update_selected_layer(layer):
     if layer=="Sprites":
         image_files =[f for f in files if f.startswith("sprite") and f.endswith(".png")]
     elif layer=="Blocks":
-        image_files=[f for f in files if f.startswith("block") and f.endswith(".png")]
+        image_files=[f for f in files if f.startswith("block") and f.endswith(".png") and f!="block00.png"]
     global images
     images = []
     for image_file in image_files:

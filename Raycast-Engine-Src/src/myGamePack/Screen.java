@@ -33,16 +33,19 @@ public class Screen {
 	private ArrayList<Sprite> spriteArrTemp = new ArrayList<Sprite>();
 	private Sprite[] spriteArr = new Sprite[0];
 	private int[] pixels;
+	private int[] outputPixels;
 	private int frames;
 	private Camera camera;
 	private Sound current_bgm;
 	private Sound current_sfe;
 	private HashMap<String, String> user_temp_variables = new HashMap<>();
+	private int SCREEN_W;
+	private int SCREEN_H;
 	
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
 			HashMap<String, Texture> allTextures, int game_width, int game_height, int pixel_effect, int fog_col,
 			String skyboxId, boolean skySelfMovement, int renderDistance, double world_light_factor, int[] pixels,
-			Camera camera, int renderSpriteDistance) {
+			Camera camera, int renderSpriteDistance, int SCREEN_W, int SCREEN_H, int[] gamepixels) {
 		this.layer0 = layer0;
 		this.layer1 = layer1;
 		this.event_data = event_data;
@@ -73,8 +76,11 @@ public class Screen {
 			spriteArr[k] = sprite;
 			k++;
 		}
-		this.pixels = pixels;
+		this.pixels = gamepixels;
 		this.camera = camera;
+		this.SCREEN_W = SCREEN_W;
+		this.SCREEN_H = SCREEN_H;
+		this.outputPixels = pixels;
 	}
 
 	public int darkenColor(int color, double factor) {
@@ -91,6 +97,7 @@ public class Screen {
 	}
 
 	public void update(int frames) {
+		
 		this.frames = frames;
 		double darkened_factor = world_light_factor;
 		if (!in_doors) {
@@ -236,7 +243,7 @@ public class Screen {
 			distPlayer = 0.0;
 			if (drawEnd < 0)
 				drawEnd = height;
-			for (int y = drawEnd + 1; y < height; y++) {
+			for (int y = drawEnd; y < height; y++) {
 				currentDist = height / (2.0 * y - height);
 				double weight = (currentDist - distPlayer) / (distWall - distPlayer);
 				double currentFloorX = weight * floorXWall + (1.0 - weight) * camera.xPos;
@@ -340,6 +347,27 @@ public class Screen {
 						}
 					}
 			}
+		}
+		final float scale = Math.min(SCREEN_W / (float)width, SCREEN_H / (float)height);
+		final int renderW = (int)(width * scale);
+		final int renderH = (int)(height * scale);
+		final int startX = (SCREEN_W - renderW) >> 1;
+		final int startY = (SCREEN_H - renderH) >> 1;
+		final int endX = startX + renderW;
+		final int endY = startY + renderH;
+		final float invScale = 1.0f / scale;
+		for (int y = 0; y < SCREEN_H; y++) {
+		    final int screenY = y * SCREEN_W;
+		    final boolean inY = (y >= startY && y < endY);
+		    for (int x = 0; x < SCREEN_W; x++) {
+		        if (inY && x >= startX && x < endX) {
+		            int srcX = (int)((x - startX) * invScale);
+		            int srcY = (int)((y - startY) * invScale);		            
+		            outputPixels[screenY + x] = pixels[srcY * width + srcX];
+		        } else {
+		            outputPixels[screenY + x] = 0xFF000000;
+		        }
+		    }
 		}
 		run_user_scripts();
 	}
