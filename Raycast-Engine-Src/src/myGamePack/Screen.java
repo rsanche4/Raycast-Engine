@@ -21,7 +21,6 @@ public class Screen {
 	private HashMap<String, Texture> textures;
 	private int width;
 	private int height;
-	private int pixel_effect;
 	private int fog_color;
 	private String skyb;
 	private boolean sky_wave;
@@ -43,7 +42,7 @@ public class Screen {
 	private int SCREEN_H;
 	
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
-			HashMap<String, Texture> allTextures, int game_width, int game_height, int pixel_effect, int fog_col,
+			HashMap<String, Texture> allTextures, int game_width, int game_height, int fog_col,
 			String skyboxId, boolean skySelfMovement, int renderDistance, double world_light_factor, int[] pixels,
 			Camera camera, int renderSpriteDistance, int SCREEN_W, int SCREEN_H, int[] gamepixels) {
 		this.layer0 = layer0;
@@ -54,7 +53,6 @@ public class Screen {
 		textures = allTextures;
 		width = game_width;
 		height = game_height;
-		this.pixel_effect = pixel_effect;
 		fog_color = fog_col;
 		skyb = skyboxId;
 		sky_wave = skySelfMovement;
@@ -112,7 +110,7 @@ public class Screen {
 			if (sky_wave) {
 				rotate_sky = rotate_sky + (int) (30 * Math.cos(((double) frames % 50) / 8.0));
 			}
-			for (int n = 0; n < pixels.length / 2; n = n + pixel_effect) {
+			for (int n = 0; n < pixels.length / 2; n++) {
 				if (n % width == 0 && row < max_row) {
 					skybox_x = rotate_sky;
 					skybox_y++;
@@ -128,13 +126,12 @@ public class Screen {
 				int bc = (int) ((fog_perc) * ((fog_color & 0xFF))
 						+ (1 - fog_perc) * ((sky.pixels[skybox_x + width * 4 * skybox_y] & 0xFF)));
 				new_fog_color_ceiling = ((rc & 0x0ff) << 16) | ((gc & 0x0ff) << 8) | (bc & 0x0ff);
-				for (int i = 0; i < pixel_effect; i++)
-					pixels[n + i] = darkenColor(new_fog_color_ceiling, darkened_factor);
-				skybox_x += pixel_effect;
+				pixels[n] = darkenColor(new_fog_color_ceiling, darkened_factor);
+				skybox_x++;
 			}
 		}
 		double[] perp_wall_dist_buffer = new double[width];
-		for (int x = 0; x < width; x = x + pixel_effect) {
+		for (int x = 0; x < width; x++) {
 			double cameraX = 2 * x / (double) (width) - 1;
 			double rayDirX = camera.xDir + camera.xPlane * cameraX;
 			double rayDirY = camera.yDir + camera.yPlane * cameraX;
@@ -179,8 +176,7 @@ public class Screen {
 				perpWallDist = Math.abs((mapX - camera.xPos + (1 - stepX) / 2) / rayDirX);
 			else
 				perpWallDist = Math.abs((mapY - camera.yPos + (1 - stepY) / 2) / rayDirY);
-			for (int i = 0; i < pixel_effect; i++)
-				perp_wall_dist_buffer[x + i] = perpWallDist;
+			perp_wall_dist_buffer[x] = perpWallDist;
 			int lineHeight;
 			if (perpWallDist > 0)
 				lineHeight = Math.abs((int) (height / perpWallDist));
@@ -221,8 +217,7 @@ public class Screen {
 				int gc = (int) ((percd) * ((fog_color & 0xFF00) >> 8) + (1 - percd) * ((color & 0xFF00) >> 8));
 				int bc = (int) ((percd) * ((fog_color & 0xFF)) + (1 - percd) * ((color & 0xFF)));
 				color = ((rc & 0x0ff) << 16) | ((gc & 0x0ff) << 8) | (bc & 0x0ff);
-				for (int i = 0; i < pixel_effect; i++)
-					pixels[(x + i) + y * (width)] = darkenColor(color, darkened_factor);
+				pixels[x + y * (width)] = darkenColor(color, darkened_factor);
 			}
 			double floorXWall, floorYWall;
 			if (side == 0 && rayDirX > 0) {
@@ -254,7 +249,7 @@ public class Screen {
 				int draw_tilex = Math.abs(((int) currentFloorX) % mapWidth);
 				int draw_tiley = Math.abs(((int) currentFloorY) % mapHeight);
 				Texture textureFloor = textures.get(layer0[draw_tilex][draw_tiley]);
-				int new_color = textureFloor.pixels[floorTexX + (floorTexY * textureFloor.SIZE)];
+				int new_color = textureFloor.pixels[floorTexY + (floorTexX * textureFloor.SIZE)];
 				double percd_floor = currentDist / render_dist;
 				if (percd_floor > 1) {
 					percd_floor = 1;
@@ -268,8 +263,7 @@ public class Screen {
 				if (!in_doors && y < height / 2) {
 					continue;
 				}
-				for (int i = 0; i < pixel_effect; i++)
-					pixels[(x + i) + y * (width)] = darkenColor(new_color, darkened_factor);
+				pixels[x + y * (width)] = darkenColor(new_color, darkened_factor);
 				Texture ceilingTexture = skybox_default;
 				int new_color_c = ceilingTexture.pixels[floorTexX + (floorTexY * ceilingTexture.SIZE)];
 				int rcc = (int) ((percd_floor) * ((fog_color & 0xFF0000) >> 16)
@@ -279,8 +273,7 @@ public class Screen {
 				int bcc = (int) ((percd_floor) * ((fog_color & 0xFF)) + (1 - percd_floor) * ((new_color_c & 0xFF)));
 				new_color_c = ((rcc & 0x0ff) << 16) | ((gcc & 0x0ff) << 8) | (bcc & 0x0ff);
 				if (in_doors) {
-					for (int i = 0; i < pixel_effect; i++)
-						pixels[(x + i) + (height - y) * (width)] = darkenColor(new_color_c, darkened_factor);
+					pixels[x + (height - y) * (width)] = darkenColor(new_color_c, darkened_factor);
 				}
 			}
 		}
@@ -316,7 +309,7 @@ public class Screen {
 				drawStartX = 0;
 				drawEndX = 0;
 			}
-			for (int stripe = drawStartX; stripe < drawEndX; stripe = stripe + pixel_effect) {
+			for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
 				int texX = (int) (256 * (stripe - (-spriteWidth / 2 + spriteScreenX))
 						* spriteArr[i].getTexture(textures).SIZE / spriteWidth) / 256;
 				if (transformY > 0 && stripe > 0 && stripe < width && transformY < perp_wall_dist_buffer[stripe])
@@ -340,14 +333,12 @@ public class Screen {
 									+ (1 - percd) * ((color & 0xFF00) >> 8));
 							int bc = (int) ((percd) * ((fog_color & 0xFF)) + (1 - percd) * ((color & 0xFF)));
 							color = ((rc & 0x0ff) << 16) | ((gc & 0x0ff) << 8) | (bc & 0x0ff);
-							for (int doingthepixeffect = 0; doingthepixeffect < pixel_effect; doingthepixeffect++) {
-								pixels[((stripe) + y * (width)) + doingthepixeffect] = darkenColor(color,
-										darkened_factor);
-							}
+							pixels[((stripe) + y * (width))] = darkenColor(color, darkened_factor);
 						}
 					}
 			}
 		}
+		run_user_scripts();
 		final float scale = Math.min(SCREEN_W / (float)width, SCREEN_H / (float)height);
 		final int renderW = (int)(width * scale);
 		final int renderH = (int)(height * scale);
@@ -369,7 +360,6 @@ public class Screen {
 		        }
 		    }
 		}
-		run_user_scripts();
 	}
 	
 	public String getKeyPressed() {

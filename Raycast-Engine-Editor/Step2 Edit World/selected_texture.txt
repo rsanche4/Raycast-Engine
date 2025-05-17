@@ -1,1 +1,1 @@
-block_water.png
+sprite0.png

@@ -4,9 +4,9 @@ local event_y = select(2, ...)
 local selected = REAPI:readTempVar("selected")
 if selected then
     if selected == "1" then
-        REAPI:addUIToScreen("menu_selector.png", 327, 383)
+        REAPI:addUIToScreen("menu_selector.png", 20, 20)
     elseif selected == "2" then
-        REAPI:addUIToScreen("menu_selector.png", 327, 435 - 12)
+        REAPI:addUIToScreen("menu_selector.png", 20, 40)
     end
 else
     REAPI:writeTempVar("selected", "1")
@@ -32,10 +32,9 @@ if REAPI:getKeyPressed() == "enter" then
     if selected == "1" then
         if REAPI:readTempVar("isMenu", "1") then
             REAPI:writeTempVar("isMenu", "0")
-            REAPI:stopBGM()
             REAPI:playSE("menu_enter.WAV", false)
             REAPI:playBGM("outside.wav", true)
-            REAPI:endScript(254, 255)
+            REAPI:endScript(249,251)
             REAPI:endScript(event_x, event_y)
         end
     else

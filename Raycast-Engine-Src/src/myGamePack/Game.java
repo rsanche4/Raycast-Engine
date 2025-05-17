@@ -31,7 +31,6 @@ public class Game extends JFrame implements Runnable {
 	public static double world_light_factor = 1.0;
 	private static String game_title;
 	private static String game_version;
-	private static int pixel_effect = 1;
 	private static String current_world;
 	private static int game_width=320;
 	private static int game_height=200;
@@ -76,7 +75,7 @@ public class Game extends JFrame implements Runnable {
 			}
 			gamepixels = new int[game_width*game_width];
 			screen = new Screen(layer0, layer1, event_data, MAX_WORLD_LIMIT, allTextures, game_width, game_height,
-					pixel_effect, fog_col, skyboxId, skySelfMovement, renderDistance, world_light_factor, pixels,
+					fog_col, skyboxId, skySelfMovement, renderDistance, world_light_factor, pixels,
 					camera, renderSpriteDist, SCREEN_W, SCREEN_H, gamepixels);
 			addKeyListener(camera);
 			//setSize(game_width, game_height);

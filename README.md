@@ -7,9 +7,3 @@ The Raycast Engine is typically used in first-person perspective games or simula
 Let me show you a quick demo of the famous liminal space "The Backrooms" rendered in this engine.
 
 [![Watch the video](https://img.youtube.com/vi/9v8R9GMLWoM/0.jpg)](https://youtu.be/9v8R9GMLWoM)
-
-Future Features for Engine:
-- Tutorial and Docs, Install Guides, Sample Project
-- Add parallax
-- Change Shadows Setting
-- Fix the small bug with direction in editor vs direction in engine for tiles
