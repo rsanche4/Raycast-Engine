@@ -4,9 +4,9 @@ local event_y = select(2, ...)
 local selected = REAPI:readTempVar("selected")
 if selected then
     if selected == "1" then
-        REAPI:addUIToScreen("menu_selector.png", 20, 20)
+        REAPI:addUIToScreen("menu_selector.png", 50-5, 100-2)
     elseif selected == "2" then
-        REAPI:addUIToScreen("menu_selector.png", 20, 40)
+        REAPI:addUIToScreen("menu_selector.png", 50-5, 120-2)
     end
 else
     REAPI:writeTempVar("selected", "1")

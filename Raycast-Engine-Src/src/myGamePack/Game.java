@@ -26,7 +26,7 @@ import org.json.JSONObject;
 // Description: This is the main class, and it starts the whole game, it initializes everything that is needed to run, etc.
 public class Game extends JFrame implements Runnable {
 	private static final long serialVersionUID = 1L;
-	public static double FPS = 60.0;
+	public static double FPS = 30.0;
 	public static int MAX_WORLD_LIMIT = 500;
 	public static double world_light_factor = 1.0;
 	private static String game_title;
@@ -78,14 +78,16 @@ public class Game extends JFrame implements Runnable {
 					fog_col, skyboxId, skySelfMovement, renderDistance, world_light_factor, pixels,
 					camera, renderSpriteDist, SCREEN_W, SCREEN_H, gamepixels);
 			addKeyListener(camera);
-			//setSize(game_width, game_height);
 			setSize(SCREEN_W, SCREEN_H);
-			setResizable(true);
+			setResizable(false);
+			setUndecorated(true);
+			setLocation(0, 0);
 			setTitle(game_title + " " + game_version.toString());
 			setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			setBackground(Color.black);
 			setLocationRelativeTo(null);
 			setVisible(true);
+			setExtendedState(JFrame.MAXIMIZED_BOTH);
 			start();
 		} catch (IOException e) {
 			e.printStackTrace();
