@@ -373,6 +373,10 @@ public class Screen {
 			return "up_arrow";
 		} else if (camera.enter) {
 			return "enter";
+		} else if (camera.space) {
+			return "space";
+		} else if (camera.shift) {
+			return "shift";
 		}
 		return null;
 	}
@@ -388,6 +392,10 @@ public class Screen {
 			return "up_arrow";
 		} else if (!camera.enter) {
 			return "enter";
+		} else if (!camera.space) {
+			return "space";
+		} else if (!camera.shift) {
+			return "shift";
 		}
 		return null;
 	}
