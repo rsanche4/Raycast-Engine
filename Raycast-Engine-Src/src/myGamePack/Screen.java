@@ -37,7 +37,7 @@ public class Screen {
 	private Camera camera;
 	private Sound current_bgm;
 	private Sound current_sfe;
-	private HashMap<String, String> user_temp_variables = new HashMap<>();
+	private HashMap<String, Object> user_temp_variables = new HashMap<>();
 	private int SCREEN_W;
 	private int SCREEN_H;
 	
@@ -362,42 +362,42 @@ public class Screen {
 		}
 	}
 	
-	public String getKeyPressed() {
-		if (camera.left) {
-			return "left_arrow";
-		} else if (camera.right) {
-			return "right_arrow";
-		} else if (camera.back) {
-			return "down_arrow";
-		} else if (camera.forward) {
-			return "up_arrow";
-		} else if (camera.enter) {
-			return "enter";
-		} else if (camera.space) {
-			return "space";
-		} else if (camera.shift) {
-			return "shift";
+	public Boolean getKeyPressed(String keyname) {
+		if (keyname.contains("left_arrow") && camera.left) {
+			return true;
+		} else if (keyname.contains("right_arrow") && camera.right) {
+			return true;
+		} else if (keyname.contains("down_arrow") && camera.back) {
+			return true;
+		} else if (keyname.contains("up_arrow") && camera.forward) {
+			return true;
+		} else if (keyname.contains("enter") && camera.enter) {
+			return true;
+		} else if (keyname.contains("space") && camera.space) {
+			return true;
+		} else if (keyname.contains("shift") && camera.shift) {
+			return true;
 		}
-		return null;
+		return false;
 	}
 	
-	public String getKeyReleased() {
-		if (!camera.left) {
-			return "left_arrow";
-		} else if (!camera.right) {
-			return "right_arrow";
-		} else if (!camera.back) {
-			return "down_arrow";
-		} else if (!camera.forward) {
-			return "up_arrow";
-		} else if (!camera.enter) {
-			return "enter";
-		} else if (!camera.space) {
-			return "space";
-		} else if (!camera.shift) {
-			return "shift";
+	public Boolean getKeyReleased(String keyname) {
+		if (keyname.contains("left_arrow") && !camera.left) {
+			return true;
+		} else if (keyname.contains("right_arrow") && !camera.right) {
+			return true;
+		} else if (keyname.contains("down_arrow") && !camera.back) {
+			return true;
+		} else if (keyname.contains("up_arrow") && !camera.forward) {
+			return true;
+		} else if (keyname.contains("enter") && !camera.enter) {
+			return true;
+		} else if (keyname.contains("space") && !camera.space) {
+			return true;
+		} else if (keyname.contains("shift") && !camera.shift) {
+			return true;
 		}
-		return null;
+		return false;
 	}
 	
 	public String getSpriteTextureId(int index) {
@@ -537,12 +537,10 @@ public class Screen {
 		this.sprite_render_dist = newRenderDist;
 	}
 
-	public void endScript(int eventx, int eventy) {
-		String eventXstr = Integer.toString(eventx);
-		String eventYstr = Integer.toString(eventy);
+	public void endScript(String script_name) {
 		ArrayList<String> eventList = new ArrayList<>(Arrays.asList(event_data));
 		for (int i = 0; i < event_data.length; i = i + 3) {
-			if (event_data[i + 1].equals(eventXstr) && event_data[i + 2].equals(eventYstr)) {
+			if (event_data[i].equals(script_name)) {
 				eventList.remove(i);
 				eventList.remove(i);
 				eventList.remove(i);
@@ -638,17 +636,22 @@ public class Screen {
 		current_sfe.stopSound();
 	}
 	
-	
 	public void systemExit() {
 		System.exit(0);
 	}
 	
-	public void writeTempVar(String key, String val) {
+	public void writeTempVar(String key, Object val) {
 		user_temp_variables.put(key, val);
 	}
 	
-	public String readTempVar(String key) {
+	public Object readTempVar(String key) {
 		return user_temp_variables.get(key);
+	}
+	
+	public void delay(long millis) {
+		long startTime = System.nanoTime();
+        long targetTime = startTime + millis * 1_000_000L;
+        while (System.nanoTime() < targetTime) {}
 	}
 	
 	public void displayText(String text, int pos_x, int pos_y, String fontfile) {
@@ -727,7 +730,11 @@ public class Screen {
 
 
 	private void run_user_scripts() {
-
+			
+		// #TODO We need to do assnchronous scripts. This means that we can just in the init script basically say which scripts will be asynchronous or we could just set it up in the editor
+		// The point is that we are gonna know, ok this script needs to run in parallel. This is important because we need to ensure parallel scripts. For example, the reloading animation script. Or 
+		// shooting etc. We need to have ui.lua basically be in paralllel because imagine if when we reload, the entire world stops. Not good. This is where I stopped for this engine as I no longer
+		// wanted to continue with raycasting.
 		for (int i = 0; i < event_data.length; i += 3) {
 			try {
 				Globals globals = JsePlatform.standardGlobals();
