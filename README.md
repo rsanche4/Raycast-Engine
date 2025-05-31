@@ -28,4 +28,8 @@ Then add the fade out when we are about to begin the game effect so it looks coo
 
 Then the music and sound design
 
+Include a manual too with the controller buttons mapped to keys etc how to play the game
+
+Also make the resolution of the Engine be automatic to the screens size
+
 Play test a lot on the tv with controller and try to get a highscore!
