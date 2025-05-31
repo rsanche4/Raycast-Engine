@@ -7,3 +7,25 @@ The Raycast Engine is typically used in first-person perspective games or simula
 Let me show you a quick demo of the famous liminal space "The Backrooms" rendered in this engine.
 
 [![Watch the video](https://img.youtube.com/vi/9v8R9GMLWoM/0.jpg)](https://youtu.be/9v8R9GMLWoM)
+
+
+Note:
+Currently in the Engine there is a sample shooter game in development. I will retake this project once I find time again, but so far this is what that sample project needs left to do:
+
+Fix the glitch of NPCs through wall effect situation cuz that is being annoying
+
+Pixel art variations of each zombie and all of them (3 Variations for Common Infected Female, 3 Variations for Common Infected Male, 3 variations for Rusher, 3 variations for Screamer, 1 variation for the Ranger, 1 variation for the principal)
+
+Then the multiple zombie AIs themselves like the male student the screamer the rusher and principal etc, each one with their specific behavior and have some good ideal variables
+
+Then add health mechanic so we are healed so drop health packs etc. and let zombies harm you and zombies be killed. And thus adding the score to the top
+
+At this point it's all good to go so add a game over screen
+
+And finally the director AI spawning all these zombies to get you with the tension meter mechanic. (L4D inspired)
+
+Then add the fade out when we are about to begin the game effect so it looks cool and better with ok pacing when starting game game over stuff too etc
+
+Then the music and sound design
+
+Play test a lot on the tv with controller and try to get a highscore!

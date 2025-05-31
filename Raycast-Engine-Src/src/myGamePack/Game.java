@@ -32,8 +32,8 @@ public class Game extends JFrame implements Runnable {
 	private static String game_title;
 	private static String game_version;
 	private static String current_world;
-	private static int game_width=320;
-	private static int game_height=200;
+	private static int game_width=256;
+	private static int game_height=256;
 	private static int SCREEN_W;
 	private static int SCREEN_H;
 	private static String[][] layer0;
@@ -132,6 +132,7 @@ public class Game extends JFrame implements Runnable {
 			while (delta >= 1) {
 				screen.update(frame_num);
 				camera.update(layer0, layer1, event_data);
+				frame_num++;
 				delta--;
 			}
 			render();

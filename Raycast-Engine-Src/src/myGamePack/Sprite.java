@@ -9,16 +9,27 @@ public class Sprite implements Comparable<Sprite> {
 	public double spriteYPos;
 	public double spriteDist;
 	public String spritename;
+	public String spriteId;
+	public String behaviorScript;
 
-	public Sprite(String spritename, double sx, double sy) {
-		double centering_offset_inblock = 0.5;
-		spriteXPos = sx+centering_offset_inblock;
-		spriteYPos = sy+centering_offset_inblock;
+	public Sprite(String spritename, double sx, double sy, String spriteId, String behavior_script) {
+		spriteXPos = sx;
+		spriteYPos = sy;
 		this.spritename = spritename;
+		this.spriteId = spriteId;
+		behaviorScript = behavior_script;
 	}
 
 	public Texture getTexture(HashMap<String, Texture> tex) {
 		return tex.get(spritename);
+	}
+	
+	public String getSpriteId() {
+		return spriteId;
+	}
+	
+	public String getBehaviorScriptName() {
+		return behaviorScript;
 	}
 
 	@Override

@@ -3,7 +3,17 @@ package myGamePack;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
@@ -40,6 +50,7 @@ public class Screen {
 	private HashMap<String, Object> user_temp_variables = new HashMap<>();
 	private int SCREEN_W;
 	private int SCREEN_H;
+	private double[] coordsToCacheForPathfind;
 	
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
 			HashMap<String, Texture> allTextures, int game_width, int game_height, int fog_col,
@@ -61,10 +72,12 @@ public class Screen {
 		this.world_light_factor = world_light_factor;
 		in_doors = skyb.contains("block") ? true : skyb.contains("skybox") ? false : false;
 		skybox_default = allTextures.get(skyb);
+		int spriteIdTemp = 0;
 		for (int i = 0; i < layer1.length; i++) {
 			for (int j = 0; j < layer1[i].length; j++) {
 				if (!layer1[i][j].contains("sprite0") && !layer1[i][j].contains("block")) {
-					spriteArrTemp.add(new Sprite(layer1[i][j], (double) i, (double) j));
+					spriteArrTemp.add(new Sprite(layer1[i][j], (double) i+0.5, (double) j+0.5, String.valueOf(spriteIdTemp), "null.lua"));
+					spriteIdTemp++;
 				}
 			}
 		}
@@ -321,7 +334,7 @@ public class Screen {
 						if (angleInDegrees < 0) {
 							angleInDegrees += 360;
 						}
-						int direction = (int) ((angleInDegrees + 225) % 360 / 90);
+						int direction = (int) ((angleInDegrees + 225) % 360 / 45);
 						int color = spriteArr[i].getTexture(textures).pixels[Math
 								.abs(texX + ((texY + spriteArr[i].getTexture(textures).SIZE * direction)
 										* spriteArr[i].getTexture(textures).SIZE))];
@@ -432,8 +445,8 @@ public class Screen {
 		this.spriteArr[index].spriteDist = spriteDist;
 	}
 	
-	public void addSprite(String spritename, double spriteXPos, double spriteYPos) {
-		Sprite spr = new Sprite(spritename, spriteXPos, spriteYPos);
+	public void addSprite(String spritename, double spriteXPos, double spriteYPos, String spriteId) {
+		Sprite spr = new Sprite(spritename, spriteXPos, spriteYPos, spriteId, "null.lua");
 		ArrayList<Sprite> spriteArrTemp = new ArrayList<>(Arrays.asList(this.spriteArr));
 		spriteArrTemp.add(spr);
 		this.spriteArr = spriteArrTemp.toArray(new Sprite[0]);
@@ -549,15 +562,38 @@ public class Screen {
 		}
 		event_data = eventList.toArray(new String[0]);
 	}
+	
+	public void endScriptByPosition(String script_name, double posx, double posy) {
+		ArrayList<String> eventList = new ArrayList<>(Arrays.asList(event_data));
+		for (int i = 0; i < event_data.length; i = i + 3) {
+			if (event_data[i].equals(script_name) && event_data[i+1].equals(Double.toString(posx)) && event_data[i+2].equals(Double.toString(posy))) {
+				eventList.remove(i);
+				eventList.remove(i);
+				eventList.remove(i);
+				break;
+			}
+		}
+		event_data = eventList.toArray(new String[0]);
+	}
 
-	public void addScript(String script_name, int eventx, int eventy) {
-		String eventXstr = Integer.toString(eventx);
-		String eventYstr = Integer.toString(eventy);
+	public void addScript(String script_name, double pos_x, double pos_y) {
+		String eventXstr = Double.toString(pos_x);
+		String eventYstr = Double.toString(pos_y);
 		ArrayList<String> eventList = new ArrayList<>(Arrays.asList(event_data));
 		eventList.add(script_name);
 		eventList.add(eventXstr);
 		eventList.add(eventYstr);
 		event_data = eventList.toArray(new String[0]);
+	}
+	
+	public void updateScriptPositionInMap(String script_name, double originalposx, double originalposy, double newposx, double newposy) {
+		for (int i = 0; i < event_data.length; i = i + 3) {
+			if (event_data[i].equals(script_name) && event_data[i+1].equals(Double.toString(originalposx)) && event_data[i+2].equals(Double.toString(originalposy))) {
+				event_data[i+1] = Double.toString(newposx);
+				event_data[i+2] = Double.toString(newposy);
+				break;
+			}
+		}
 	}
 
 	public String getEventList() {
@@ -592,8 +628,11 @@ public class Screen {
 		return camera.player_degree;
 	}
 
-	public void setPlayerDegree(double playerdegree) {
-		camera.player_degree = playerdegree;
+	public void setPlayerDirection(double xdir, double ydir, double xplane, double yplane) {
+		camera.xDir = xdir;
+		camera.yDir = ydir;
+		camera.xPlane = xplane;
+		camera.yPlane = yplane;
 	}
 
 	public double getMoveSpeed() {
@@ -654,12 +693,169 @@ public class Screen {
         while (System.nanoTime() < targetTime) {}
 	}
 	
+	public void add_entity(String entityid, String spritename, double pos_x, double pos_y, String behavior_script) {
+		ArrayList<Sprite> spriteListTemp = new ArrayList<>(Arrays.asList(spriteArr));
+		Sprite newSprite = new Sprite(spritename, pos_x, pos_y, entityid, behavior_script);
+		spriteListTemp.add(newSprite);
+		spriteArr = spriteListTemp.toArray(new Sprite[0]);
+		addScript(behavior_script, pos_x, pos_y);
+	}
+	
+	public int edit_entity(String entityid, String spritename, double pos_x, double pos_y) {
+	    for (int i = spriteArr.length - 1; i >= 0; i--) {
+	        if (spriteArr[i].getSpriteId().equals(entityid)) {
+	        	updateScriptPositionInMap(get_entity_behavior_script(entityid), spriteArr[i].spriteXPos, spriteArr[i].spriteYPos, pos_x, pos_y);
+	        	spriteArr[i].spritename = spritename;
+	            spriteArr[i].spriteXPos = pos_x;
+	            spriteArr[i].spriteYPos = pos_y;
+	            return 1;
+	        }
+	    }
+		return -1;
+	}
+	
+	public String get_entity_id_by_position(double posx, double posy) {
+		for (int i = spriteArr.length - 1; i >= 0; i--) {
+			if (spriteArr[i].spriteXPos == posx && spriteArr[i].spriteYPos == posy) {
+				return spriteArr[i].getSpriteId();
+			}
+		}
+		return null;
+	}
+	
+	public double get_entity_pos_x(String entityid) {
+	    for (int i = spriteArr.length - 1; i >= 0; i--) {
+	        if (spriteArr[i].getSpriteId().equals(entityid)) {
+	            return spriteArr[i].spriteXPos;
+	        }
+	    }
+	    return -1;
+	}
+
+	public double get_entity_pos_y(String entityid) {
+	    for (int i = spriteArr.length - 1; i >= 0; i--) {
+	        if (spriteArr[i].getSpriteId().equals(entityid)) {
+	            return spriteArr[i].spriteYPos;
+	        }
+	    }
+	    return -1;
+	}
+
+	public String get_entity_spritename(String entityid) {
+	    for (int i = spriteArr.length - 1; i >= 0; i--) {
+	        if (spriteArr[i].getSpriteId().equals(entityid)) {
+	            return spriteArr[i].spritename;
+	        }
+	    }
+	    return null;
+	}
+
+	public String get_entity_behavior_script(String entityid) {
+	    for (int i = spriteArr.length - 1; i >= 0; i--) {
+	        if (spriteArr[i].getSpriteId().equals(entityid)) {
+	            return spriteArr[i].behaviorScript;
+	        }
+	    }
+	    return null;
+	}
+	
+	public void remove_entity(String entityid) {
+		ArrayList<Sprite> spriteListTemp = new ArrayList<>(Arrays.asList(spriteArr));
+	    for (int i = spriteListTemp.size() - 1; i >= 0; i--) {
+	        if (spriteListTemp.get(i).getSpriteId().equals(entityid)) {
+	            spriteListTemp.remove(i);
+	            break;
+	        }
+	    }
+	    spriteArr = spriteListTemp.toArray(new Sprite[0]);
+	    endScriptByPosition(get_entity_behavior_script(entityid), get_entity_pos_x(entityid), get_entity_pos_y(entityid));
+	}
+	
+	public void pathfindToward(double speed, double source_x, double source_y, double target_x, double target_y) {
+	    coordsToCacheForPathfind = new double[]{source_x, source_y};
+	    int startX = (int)source_x;
+	    int startY = (int)source_y;
+	    int targetX = (int)target_x;
+	    int targetY = (int)target_y;
+	    if (startX == targetX && startY == targetY) return;
+	    PriorityQueue<int[]> openList = new PriorityQueue<>(Comparator.comparingInt(a -> a[2] + a[3]));
+	    Map<String, int[]> cameFrom = new HashMap<>();
+	    Map<String, Integer> gScores = new HashMap<>();
+	    Set<String> closedSet = new HashSet<>();
+	    openList.add(new int[]{startX, startY, 0, (int)(Math.abs(startX - targetX) + Math.abs(startY - targetY))});  
+	    gScores.put(startX + "," + startY, 0);
+	    int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
+	    while (!openList.isEmpty()) {
+	        int[] current = openList.poll();
+	        int x = current[0];
+	        int y = current[1];
+	        String currentKey = x + "," + y;
+	        if (closedSet.contains(currentKey)) continue;
+	        if (x == targetX && y == targetY) {
+	            ArrayList<int[]> path = new ArrayList<>();
+	            String key = currentKey;
+	            while (cameFrom.containsKey(key)) {
+	                int[] node = cameFrom.get(key);
+	                path.add(new int[]{Integer.parseInt(key.split(",")[0]), Integer.parseInt(key.split(",")[1])});
+	                key = node[0] + "," + node[1];
+	            }
+	            if (!path.isEmpty()) {
+	                int[] nextStep = path.get(path.size() - 1);
+	                double dx = nextStep[0] - startX;
+	                double dy = nextStep[1] - startY;
+	                double dist = Math.sqrt(dx*dx + dy*dy);
+	                if (dist > 0) {
+	                    coordsToCacheForPathfind[0] = source_x + (dx/dist)*speed;
+	                    coordsToCacheForPathfind[1] = source_y + (dy/dist)*speed;
+	                }
+	            }
+	            return;
+	        }
+	        closedSet.add(currentKey);
+	        for (int[] dir : directions) {
+	            int nx = x + dir[0];
+	            int ny = y + dir[1];
+	            String neighborKey = nx + "," + ny;
+	            if (nx < 0 || ny < 0 || getLayerValue(1, nx, ny).startsWith("block")) continue;
+	            if (dir[0] != 0 && dir[1] != 0) {
+	                if (getLayerValue(1, x + dir[0], y).startsWith("block") || 
+	                    getLayerValue(1, x, y + dir[1]).startsWith("block")) {
+	                    continue;
+	                }
+	            }
+	            if (closedSet.contains(neighborKey)) continue;
+	            double cost = (dir[0] != 0 && dir[1] != 0) ? 1.414 : 1.0;
+	            int tentativeG = current[2] + (int)(cost * 10);
+	            if (!gScores.containsKey(neighborKey) || tentativeG < gScores.get(neighborKey)) {
+	                cameFrom.put(neighborKey, new int[]{x, y});
+	                gScores.put(neighborKey, tentativeG);
+	                int dx = Math.abs(nx - targetX);
+	                int dy = Math.abs(ny - targetY);
+	                int h = (int)(10 * (dx + dy + (Math.sqrt(2) - 2) * Math.min(dx, dy)));
+	                openList.add(new int[]{nx, ny, tentativeG, h});
+	            }
+	        }
+	    }
+	}
+	
+	public double getMoveTowardX() {
+		return coordsToCacheForPathfind[0];
+	}
+	
+	public double getMoveTowardY() {
+		return coordsToCacheForPathfind[1];
+	}
+	
+	public void consoleDoubleLog(double value) {
+		System.out.println(Double.toString(value));
+	}
+	
 	public void displayText(String text, int pos_x, int pos_y, String fontfile) {
 	    text = text.toLowerCase(); 
 	    int[] font_pixels = textures.get(fontfile).pixels; 
 	    int cursor = pos_x;  
 	    
-	    int font_original_pixel_size = textures.get(fontfile).IMG_HEI / 42; 
+	    int font_original_pixel_size = textures.get(fontfile).IMG_HEI / 43; 
 	    
 	    for (int i = 0; i < text.length(); i++) {
 	        int letter_location_in_fontpng = -1;  
@@ -700,14 +896,14 @@ public class Screen {
 	            case '7': letter_location_in_fontpng = 33; break;
 	            case '8': letter_location_in_fontpng = 34; break;
 	            case '9': letter_location_in_fontpng = 35; break;
-	            case ',': letter_location_in_fontpng = 36; break;
+	            case ',': letter_location_in_fontpng = 42; break;
 	            case '.': letter_location_in_fontpng = 36; break;
 	            case '\'': letter_location_in_fontpng = 37; break;
 	            case '"': letter_location_in_fontpng = 37; break;
 	            case '?': letter_location_in_fontpng = 39; break;
 	            case '!': letter_location_in_fontpng = 38; break;
-	            case '(': letter_location_in_fontpng = 41; break;
-	            case ')': letter_location_in_fontpng = 40; break;
+	            case '-': letter_location_in_fontpng = 41; break;
+	            case ':': letter_location_in_fontpng = 40; break;
 	            default: letter_location_in_fontpng = -1; break;
 	        }
 
@@ -728,20 +924,14 @@ public class Screen {
 	    }
 	}
 
-
 	private void run_user_scripts() {
-			
-		// #TODO We need to do assnchronous scripts. This means that we can just in the init script basically say which scripts will be asynchronous or we could just set it up in the editor
-		// The point is that we are gonna know, ok this script needs to run in parallel. This is important because we need to ensure parallel scripts. For example, the reloading animation script. Or 
-		// shooting etc. We need to have ui.lua basically be in paralllel because imagine if when we reload, the entire world stops. Not good. This is where I stopped for this engine as I no longer
-		// wanted to continue with raycasting.
 		for (int i = 0; i < event_data.length; i += 3) {
 			try {
 				Globals globals = JsePlatform.standardGlobals();
 				globals.set("REAPI", CoerceJavaToLua.coerce(this));
 				globals.load(new FileReader("data/" + event_data[i]), "data/" + event_data[i]).call(
-						LuaValue.valueOf(Integer.parseInt(event_data[i + 1])),
-						LuaValue.valueOf(Integer.parseInt(event_data[i + 2])));
+						LuaValue.valueOf(Double.parseDouble(event_data[i + 1])),
+						LuaValue.valueOf(Double.parseDouble(event_data[i + 2])));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
