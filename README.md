@@ -8,15 +8,9 @@ Let me show you a quick demo of the famous liminal space "The Backrooms" rendere
 
 [![Watch the video](https://img.youtube.com/vi/9v8R9GMLWoM/0.jpg)](https://youtu.be/9v8R9GMLWoM)
 
-
-Note:
-Currently in the Engine there is a sample shooter game in development. I will retake this project once I find time again, but so far this is what that sample project needs left to do:
-
 Fix the glitch of NPCs through wall effect situation cuz that is being annoying
 
-Pixel art variations of each zombie and all of them (3 Variations for Common Infected Female, 3 Variations for Common Infected Male, 3 variations for Rusher, 3 variations for Screamer, 1 variation for the Ranger, 1 variation for the principal)
-
-Then the multiple zombie AIs themselves like the male student the screamer the rusher and principal etc, each one with their specific behavior and have some good ideal variables
+Pixel art variations of each zombie and all of them, why dont we dont we do the following: 3 variations of different girl zombies, 3 variations for zombie boys and they all have different perks and strengths simple random or tiny nudges to their stats type thing utilize the horde well, and we spawn a teacher a male and a female variation where they are boss and basically stop the player for a bit, are super fast etc kind of OP
 
 Then add health mechanic so we are healed so drop health packs etc. and let zombies harm you and zombies be killed. And thus adding the score to the top
 

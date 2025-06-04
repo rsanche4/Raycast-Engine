@@ -3,6 +3,7 @@ package myGamePack;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -50,7 +51,10 @@ public class Screen {
 	private HashMap<String, Object> user_temp_variables = new HashMap<>();
 	private int SCREEN_W;
 	private int SCREEN_H;
-	private double[] coordsToCacheForPathfind;
+	private int entity_limit = 30;
+	private int maxLimitDistance = Game.MAX_WORLD_LIMIT;
+	private HashMap<String, List<String>> entities_path_memory = new HashMap<>();
+	private HashMap<String, String> entities_lastseen_memory = new HashMap<>();
 	
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
 			HashMap<String, Texture> allTextures, int game_width, int game_height, int fog_col,
@@ -687,12 +691,6 @@ public class Screen {
 		return user_temp_variables.get(key);
 	}
 	
-	public void delay(long millis) {
-		long startTime = System.nanoTime();
-        long targetTime = startTime + millis * 1_000_000L;
-        while (System.nanoTime() < targetTime) {}
-	}
-	
 	public void add_entity(String entityid, String spritename, double pos_x, double pos_y, String behavior_script) {
 		ArrayList<Sprite> spriteListTemp = new ArrayList<>(Arrays.asList(spriteArr));
 		Sprite newSprite = new Sprite(spritename, pos_x, pos_y, entityid, behavior_script);
@@ -716,7 +714,7 @@ public class Screen {
 	
 	public String get_entity_id_by_position(double posx, double posy) {
 		for (int i = spriteArr.length - 1; i >= 0; i--) {
-			if (spriteArr[i].spriteXPos == posx && spriteArr[i].spriteYPos == posy) {
+			if (spriteArr[i].spriteXPos==posx && spriteArr[i].spriteYPos==posy) {
 				return spriteArr[i].getSpriteId();
 			}
 		}
@@ -771,79 +769,180 @@ public class Screen {
 	    endScriptByPosition(get_entity_behavior_script(entityid), get_entity_pos_x(entityid), get_entity_pos_y(entityid));
 	}
 	
-	public void pathfindToward(double speed, double source_x, double source_y, double target_x, double target_y) {
-	    coordsToCacheForPathfind = new double[]{source_x, source_y};
-	    int startX = (int)source_x;
-	    int startY = (int)source_y;
-	    int targetX = (int)target_x;
-	    int targetY = (int)target_y;
-	    if (startX == targetX && startY == targetY) return;
-	    PriorityQueue<int[]> openList = new PriorityQueue<>(Comparator.comparingInt(a -> a[2] + a[3]));
-	    Map<String, int[]> cameFrom = new HashMap<>();
-	    Map<String, Integer> gScores = new HashMap<>();
-	    Set<String> closedSet = new HashSet<>();
-	    openList.add(new int[]{startX, startY, 0, (int)(Math.abs(startX - targetX) + Math.abs(startY - targetY))});  
-	    gScores.put(startX + "," + startY, 0);
-	    int[][] directions = {{1,0}, {-1,0}, {0,1}, {0,-1}, {1,1}, {1,-1}, {-1,1}, {-1,-1}};
-	    while (!openList.isEmpty()) {
-	        int[] current = openList.poll();
-	        int x = current[0];
-	        int y = current[1];
-	        String currentKey = x + "," + y;
-	        if (closedSet.contains(currentKey)) continue;
-	        if (x == targetX && y == targetY) {
-	            ArrayList<int[]> path = new ArrayList<>();
-	            String key = currentKey;
-	            while (cameFrom.containsKey(key)) {
-	                int[] node = cameFrom.get(key);
-	                path.add(new int[]{Integer.parseInt(key.split(",")[0]), Integer.parseInt(key.split(",")[1])});
-	                key = node[0] + "," + node[1];
-	            }
-	            if (!path.isEmpty()) {
-	                int[] nextStep = path.get(path.size() - 1);
-	                double dx = nextStep[0] - startX;
-	                double dy = nextStep[1] - startY;
-	                double dist = Math.sqrt(dx*dx + dy*dy);
-	                if (dist > 0) {
-	                    coordsToCacheForPathfind[0] = source_x + (dx/dist)*speed;
-	                    coordsToCacheForPathfind[1] = source_y + (dy/dist)*speed;
-	                }
-	            }
-	            return;
-	        }
-	        closedSet.add(currentKey);
-	        for (int[] dir : directions) {
-	            int nx = x + dir[0];
-	            int ny = y + dir[1];
-	            String neighborKey = nx + "," + ny;
-	            if (nx < 0 || ny < 0 || getLayerValue(1, nx, ny).startsWith("block")) continue;
-	            if (dir[0] != 0 && dir[1] != 0) {
-	                if (getLayerValue(1, x + dir[0], y).startsWith("block") || 
-	                    getLayerValue(1, x, y + dir[1]).startsWith("block")) {
-	                    continue;
-	                }
-	            }
-	            if (closedSet.contains(neighborKey)) continue;
-	            double cost = (dir[0] != 0 && dir[1] != 0) ? 1.414 : 1.0;
-	            int tentativeG = current[2] + (int)(cost * 10);
-	            if (!gScores.containsKey(neighborKey) || tentativeG < gScores.get(neighborKey)) {
-	                cameFrom.put(neighborKey, new int[]{x, y});
-	                gScores.put(neighborKey, tentativeG);
-	                int dx = Math.abs(nx - targetX);
-	                int dy = Math.abs(ny - targetY);
-	                int h = (int)(10 * (dx + dy + (Math.sqrt(2) - 2) * Math.min(dx, dy)));
-	                openList.add(new int[]{nx, ny, tentativeG, h});
-	            }
+	public void set_entity_limit(int limit) {
+		entity_limit = limit;
+	}
+	
+	public void set_entity_travel_dist(int maxDist) {
+		maxLimitDistance = maxDist;
+	}
+	
+	public int read_entity_limit() {
+		return entity_limit;
+	}
+	
+	public int read_entity_count() {
+		return entities_path_memory.size();
+	}
+	
+	public double euclidean_distance(double startx, double targetx, double starty, double targety) {
+	    double dx = targetx - startx;
+	    double dy = targety - starty;
+	    return Math.sqrt(dx * dx + dy * dy);
+	}
+	
+	public boolean within_bounds(double[] dirs, double x, double y, double length) {
+		return y+dirs[1] >= 0 && y+dirs[1] <= length-1 && x+dirs[0] >= 0 && x+dirs[0] <= length-1;
+	}
+	
+	public Node search_node(List<Node> closedList, String id) {
+		for (Node node : closedList) {
+	        if (node.id.equals(id)) {
+	            return node;
 	        }
 	    }
+	    return null;
 	}
 	
-	public double getMoveTowardX() {
-		return coordsToCacheForPathfind[0];
+	public String search_next_in_path(double x, double y, List<String> path) {
+	    String current = x + "," + y;
+	    for (int i = 0; i < path.size() - 1; i++) {
+	        if (path.get(i).equals(current)) {
+	            String[] parts = path.get(i + 1).split(",");
+	            double nextX = Double.parseDouble(parts[0]);
+	            double nextY = Double.parseDouble(parts[1]);
+	            return nextX+","+nextY;
+	        }
+	    }
+	    return x+","+y;
 	}
 	
-	public double getMoveTowardY() {
-		return coordsToCacheForPathfind[1];
+	public double decodeXfromPathString(String path_comma_sep) {
+	    String[] parts = path_comma_sep.split(",");
+	    return Double.parseDouble(parts[0]);
+	}
+
+	public double decodeYfromPathString(String path_comma_sep) {
+	    String[] parts = path_comma_sep.split(",");
+	    return Double.parseDouble(parts[1]);
+	}
+	
+	public double collision_offset(double speed) {
+		if (speed<0.1) {
+			return 0.1;
+		}
+		return speed;
+	}
+	
+	public String pathfindToward(String entityid, double source_x, double source_y, double target_x, double target_y, double speed) {
+		if (entities_path_memory.containsKey(entityid) && Math.abs(decodeXfromPathString(entities_lastseen_memory.get(entityid))-target_x)<=0.4 && 
+				Math.abs(decodeYfromPathString(entities_lastseen_memory.get(entityid))-target_y)<=0.4) {
+			List<String> path = entities_path_memory.get(entityid);
+			return search_next_in_path(source_x, source_y, path);
+		}
+		entities_lastseen_memory.put(entityid, target_x+","+target_y);
+		double startx = source_x;
+		double starty = source_y;
+		double targetx = target_x;
+		double targety = target_y;
+		double[] directionNorth = {-speed, 0};
+		double[] directionSouth = {speed, 0};
+		double[] directionEast = {0, speed};
+		double[] directionWest = {0, -speed};
+		double[] directionNorthEast = {-speed, speed};
+		double[] directionSouthEast = {speed, speed};
+		double[] directionSouthWest = {speed, -speed};
+		double[] directionNorthWest = {-speed, -speed};
+		double[][] directions = {
+		    directionNorth,
+		    directionEast,
+		    directionSouth,
+		    directionWest,
+		    directionNorthEast,
+		    directionSouthEast,
+		    directionSouthWest,
+		    directionNorthWest
+		};
+		List<Node> openList = new ArrayList<>();
+		List<Node> closedList = new ArrayList<>();
+		boolean start = true;
+		int i = 0;
+		boolean no_path_found = false;
+		double prevNodeX = 0.0;
+		double prevNodeY = 0.0;
+		while (i < maxLimitDistance) {
+		    if (Math.abs(startx-targetx)<=0.4 && Math.abs(starty-targety)<=0.4) {
+		    	prevNodeX = startx;
+		    	prevNodeY = starty;
+		        break;
+		    }
+		    if (start) {
+		        double h = euclidean_distance(startx, targetx, starty, targety);
+		        closedList.add(new Node(startx, starty, -1.0, -1.0, h));
+		        for (double[] dirs : directions) {
+		            if (within_bounds(dirs, startx, starty, (double)Game.MAX_WORLD_LIMIT) && 
+		            		!layer1[(int)(startx + 6*(dirs[0]))][(int)(starty + 6*(dirs[1]))].startsWith("block")) {
+		                h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);
+		                openList.add(new Node(startx + dirs[0], starty + dirs[1], startx, starty, h));
+		            }
+		        }
+		        openList.sort((a, b) -> Double.compare(b.h, a.h));
+		        Node bestNode = openList.remove(openList.size() - 1);
+		        closedList.add(bestNode);
+		        startx = bestNode.x;
+		        starty = bestNode.y;
+		        start = false;
+		        continue;
+		    }
+		    for (double[] dirs : directions) {
+		        if (within_bounds(dirs, startx, starty, Game.MAX_WORLD_LIMIT) && 
+		        		!layer1[(int)(startx + 6*(dirs[0]))][(int)(starty + 6*(dirs[1]))].startsWith("block")) {
+		            String id = (startx + dirs[0]) + "," + (starty + dirs[1]);
+		            if (search_node(closedList, id) == null) {
+		                double h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);
+		                openList.add(new Node(startx + dirs[0], starty + dirs[1], startx, starty, h));
+		            }
+		        }
+		    }
+		    openList.sort((a, b) -> Double.compare(b.h, a.h));
+		    if (openList.isEmpty()) {
+		    	no_path_found = true;
+		    	break;
+		    }
+		    Node bestNode = openList.remove(openList.size() - 1);
+		    closedList.add(bestNode);
+		    startx = bestNode.x;
+		    starty = bestNode.y;
+		    i++;
+		}
+		if (no_path_found) {
+			List<String> reconstruct = new ArrayList<>();
+			reconstruct.add(source_x + "," + source_y);
+			entities_path_memory.put(entityid, reconstruct);
+			return source_x+","+source_y;
+		}
+		start = true;
+		List<String> reconstruct = new ArrayList<>();
+		while (true) {
+		    if (prevNodeX == -1.0 && prevNodeY == -1.0) {
+		        break;
+		    }
+		    Node currentNode = search_node(closedList, prevNodeX + "," + prevNodeY);
+		    if (currentNode==null) {
+				reconstruct.add(source_x + "," + source_y);
+				entities_path_memory.put(entityid, reconstruct);
+		    	return source_x+ ","+source_y;
+		    }
+		    reconstruct.add(currentNode.x + "," + currentNode.y);
+		    prevNodeX = currentNode.parentX;
+		    prevNodeY = currentNode.parentY;
+		}
+		Collections.reverse(reconstruct);
+		if (read_entity_count() <= read_entity_limit()) {
+			entities_path_memory.put(entityid, reconstruct);
+			return source_x+ ","+source_y;
+		}
+		return null;
 	}
 	
 	public void consoleDoubleLog(double value) {

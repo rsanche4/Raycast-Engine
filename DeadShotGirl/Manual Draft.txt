@@ -1,0 +1,40 @@
+## DEAD SHOT GIRL GAME MANUAL ##
+Published by Raffy's Playground
+
+## OBJECTIVE ##
+Survive as long as you can in the infested school halls.
+Your mission:
+   Take down as many zombies as possible
+   Stay alive
+   Beat your high score
+
+You have your gun and... well, you do you have your gun.
+Just you against the horde!
+
+## CONTROLS (NES-Style) ##
+Button	Action
+A	Shoot
+B	Reload
+Start	Begin Game
+Up	Move Forward
+Down	Move Backward
+Left	Turn Left
+Right	Turn Right
+
+Keyboard Mappings: 
+A = Space
+B = Shift
+Start = Enter
+Arrow keys
+
+Tip: You have to reload manually-don’t get caught with an empty mag!
+
+## SCORING SYSTEM ##
+Common Zombie Kill = 1 point
+Teachers = 5 points
+Combo Kill (3+ in quick succession) = Multiplier x2
+
+## CREDITS ##
+Developed using the Raycast Engine, built in-house.
+Concept, code, and courage by Raffy's Playground.
+Pixel hearts and endless ammo dedicated to the players!
