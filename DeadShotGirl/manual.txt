@@ -1,5 +1,5 @@
 ## DEAD SHOT GIRL GAME MANUAL ##
-Published by Raffy's Playground
+Developed by Raffy's Playground
 
 ## OBJECTIVE ##
 Survive as long as you can in the infested school halls.
@@ -30,8 +30,8 @@ Arrow keys
 Tip: You have to reload manually-don’t get caught with an empty mag!
 
 ## SCORING SYSTEM ##
-Common Zombie Kill = 1 point
-Teachers = 5 points
+Zombie Student  = 1 point
+Zombie Teacher = 5 points
 Combo Kill (3+ in quick succession) = Multiplier x2
 
 ## CREDITS ##

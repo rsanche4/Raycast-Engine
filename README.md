@@ -8,7 +8,8 @@ Let me show you a quick demo of the famous liminal space "The Backrooms" rendere
 
 [![Watch the video](https://img.youtube.com/vi/9v8R9GMLWoM/0.jpg)](https://youtu.be/9v8R9GMLWoM)
 
-Fix the glitch of NPCs through wall effect situation cuz that is being annoying
+Notes on Game in Dev:
+Fix the glitch of NPCs through wall effect situation cuz that is being annoying, and optimize the heck out of the pathfinding. x is your y and y is your x. keep that in mind.
 
 Pixel art variations of each zombie and all of them, why dont we dont we do the following: 3 variations of different girl zombies, 3 variations for zombie boys and they all have different perks and strengths simple random or tiny nudges to their stats type thing utilize the horde well, and we spawn a teacher a male and a female variation where they are boss and basically stop the player for a bit, are super fast etc kind of OP
 
@@ -22,8 +23,6 @@ Then add the fade out when we are about to begin the game effect so it looks coo
 
 Then the music and sound design
 
-Include a manual too with the controller buttons mapped to keys etc how to play the game
-
 Also make the resolution of the Engine be automatic to the screens size
 
-Play test a lot on the tv with controller and try to get a highscore!
+Build an Arcade Cabinet with this game! I will do that once I acquire better resources. For now the project is complete at this time.

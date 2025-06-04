@@ -827,13 +827,6 @@ public class Screen {
 	    return Double.parseDouble(parts[1]);
 	}
 	
-	public double collision_offset(double speed) {
-		if (speed<0.1) {
-			return 0.1;
-		}
-		return speed;
-	}
-	
 	public String pathfindToward(String entityid, double source_x, double source_y, double target_x, double target_y, double speed) {
 		if (entities_path_memory.containsKey(entityid) && Math.abs(decodeXfromPathString(entities_lastseen_memory.get(entityid))-target_x)<=0.4 && 
 				Math.abs(decodeYfromPathString(entities_lastseen_memory.get(entityid))-target_y)<=0.4) {
@@ -881,7 +874,7 @@ public class Screen {
 		        closedList.add(new Node(startx, starty, -1.0, -1.0, h));
 		        for (double[] dirs : directions) {
 		            if (within_bounds(dirs, startx, starty, (double)Game.MAX_WORLD_LIMIT) && 
-		            		!layer1[(int)(startx + 6*(dirs[0]))][(int)(starty + 6*(dirs[1]))].startsWith("block")) {
+		            		!layer1[(int)(startx + dirs[0])][(int)(starty + dirs[1])].startsWith("block")) {
 		                h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);
 		                openList.add(new Node(startx + dirs[0], starty + dirs[1], startx, starty, h));
 		            }
@@ -896,7 +889,7 @@ public class Screen {
 		    }
 		    for (double[] dirs : directions) {
 		        if (within_bounds(dirs, startx, starty, Game.MAX_WORLD_LIMIT) && 
-		        		!layer1[(int)(startx + 6*(dirs[0]))][(int)(starty + 6*(dirs[1]))].startsWith("block")) {
+		        		!layer1[(int)(startx + dirs[0])][(int)(starty + dirs[1])].startsWith("block")) {
 		            String id = (startx + dirs[0]) + "," + (starty + dirs[1]);
 		            if (search_node(closedList, id) == null) {
 		                double h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);
