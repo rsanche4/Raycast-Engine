@@ -51,7 +51,7 @@ public class Screen {
 	private HashMap<String, Object> user_temp_variables = new HashMap<>();
 	private int SCREEN_W;
 	private int SCREEN_H;
-	private int entity_limit = 30;
+	private int entity_limit = 20;
 	private int maxLimitDistance = Game.MAX_WORLD_LIMIT;
 	private HashMap<String, List<String>> entities_path_memory = new HashMap<>();
 	private HashMap<String, String> entities_lastseen_memory = new HashMap<>();
@@ -791,6 +791,12 @@ public class Screen {
 	    return Math.sqrt(dx * dx + dy * dy);
 	}
 	
+	public double manhattan_distance(double startx, double targetx, double starty, double targety) {
+	    double dx = Math.abs(targetx - startx);
+	    double dy = Math.abs(targety - starty);
+	    return dx + dy;
+	}
+	
 	public boolean within_bounds(double[] dirs, double x, double y, double length) {
 		return y+dirs[1] >= 0 && y+dirs[1] <= length-1 && x+dirs[0] >= 0 && x+dirs[0] <= length-1;
 	}
@@ -825,6 +831,17 @@ public class Screen {
 	public double decodeYfromPathString(String path_comma_sep) {
 	    String[] parts = path_comma_sep.split(",");
 	    return Double.parseDouble(parts[1]);
+	}
+	
+	public boolean check_wall(double startx, double starty, double collision_offset) {
+		return !layer1[(int)(startx)][(int)(starty + collision_offset)].startsWith("block")
+				&& !layer1[(int)(startx)][(int)(starty - collision_offset)].startsWith("block")
+				&& !layer1[(int)(startx + collision_offset)][(int)(starty)].startsWith("block")
+				&& !layer1[(int)(startx - collision_offset)][(int)(starty)].startsWith("block")
+				&& !layer1[(int)(startx + collision_offset)][(int)(starty + collision_offset)].startsWith("block")
+				&& !layer1[(int)(startx + collision_offset)][(int)(starty - collision_offset)].startsWith("block") 
+				&& !layer1[(int)(startx - collision_offset)][(int)(starty + collision_offset)].startsWith("block")
+				&& !layer1[(int)(startx - collision_offset)][(int)(starty - collision_offset)].startsWith("block");
 	}
 	
 	public String pathfindToward(String entityid, double source_x, double source_y, double target_x, double target_y, double speed) {
@@ -864,7 +881,7 @@ public class Screen {
 		double prevNodeX = 0.0;
 		double prevNodeY = 0.0;
 		while (i < maxLimitDistance) {
-		    if (Math.abs(startx-targetx)<=0.4 && Math.abs(starty-targety)<=0.4) {
+		    if (Math.abs(startx-targetx)<=0.6 && Math.abs(starty-targety)<=0.6) {
 		    	prevNodeX = startx;
 		    	prevNodeY = starty;
 		        break;
@@ -873,8 +890,7 @@ public class Screen {
 		        double h = euclidean_distance(startx, targetx, starty, targety);
 		        closedList.add(new Node(startx, starty, -1.0, -1.0, h));
 		        for (double[] dirs : directions) {
-		            if (within_bounds(dirs, startx, starty, (double)Game.MAX_WORLD_LIMIT) && 
-		            		!layer1[(int)(startx + dirs[0])][(int)(starty + dirs[1])].startsWith("block")) {
+		            if (within_bounds(dirs, startx, starty, (double)Game.MAX_WORLD_LIMIT) && check_wall(startx, starty, 0.1)) {
 		                h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);
 		                openList.add(new Node(startx + dirs[0], starty + dirs[1], startx, starty, h));
 		            }
@@ -888,8 +904,7 @@ public class Screen {
 		        continue;
 		    }
 		    for (double[] dirs : directions) {
-		        if (within_bounds(dirs, startx, starty, Game.MAX_WORLD_LIMIT) && 
-		        		!layer1[(int)(startx + dirs[0])][(int)(starty + dirs[1])].startsWith("block")) {
+		        if (within_bounds(dirs, startx, starty, Game.MAX_WORLD_LIMIT) && check_wall(startx, starty, 0.1)) {
 		            String id = (startx + dirs[0]) + "," + (starty + dirs[1]);
 		            if (search_node(closedList, id) == null) {
 		                double h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);

@@ -85,19 +85,15 @@ public class Camera implements KeyListener {
 
 	public void update(String[][] layer0, String[][] layer1, String[] event_data) {
 		if (forward) {
-			if (layer1[(int) (xPos + xDir * MOVE_SPEED)][(int) yPos].contains("sprite")
-					&& !layer1[(int) (xPos + xDir * MOVE_SPEED)][(int) yPos].contains("spriteSOLID"))
+			if (layer1[(int) (xPos + xDir * MOVE_SPEED)][(int) yPos].contains("sprite"))
 				xPos += xDir * MOVE_SPEED;
-			if (layer1[(int) xPos][(int) (yPos + yDir * MOVE_SPEED)].contains("sprite")
-					&& !layer1[(int) xPos][(int) (yPos + yDir * MOVE_SPEED)].contains("spriteSOLID"))
+			if (layer1[(int) xPos][(int) (yPos + yDir * MOVE_SPEED)].contains("sprite"))
 				yPos += yDir * MOVE_SPEED;
 		}
 		if (back) {
-			if (layer1[(int) (xPos - xDir * MOVE_SPEED)][(int) yPos].contains("sprite")
-					&& !layer1[(int) (xPos - xDir * MOVE_SPEED)][(int) yPos].contains("spriteSOLID"))
+			if (layer1[(int) (xPos - xDir * MOVE_SPEED)][(int) yPos].contains("sprite"))
 				xPos -= xDir * MOVE_SPEED;
-			if (layer1[(int) xPos][(int) (yPos - yDir * MOVE_SPEED)].contains("sprite")
-					&& !layer1[(int) xPos][(int) (yPos - yDir * MOVE_SPEED)].contains("spriteSOLID"))
+			if (layer1[(int) xPos][(int) (yPos - yDir * MOVE_SPEED)].contains("sprite"))
 				yPos -= yDir * MOVE_SPEED;
 		}
 		if (right) {

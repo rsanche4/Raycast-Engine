@@ -8,21 +8,5 @@ Let me show you a quick demo of the famous liminal space "The Backrooms" rendere
 
 [![Watch the video](https://img.youtube.com/vi/9v8R9GMLWoM/0.jpg)](https://youtu.be/9v8R9GMLWoM)
 
-Notes on Game in Dev:
-Fix the glitch of NPCs through wall effect situation cuz that is being annoying, and optimize the heck out of the pathfinding. x is your y and y is your x. keep that in mind.
-
-Pixel art variations of each zombie and all of them, why dont we dont we do the following: 3 variations of different girl zombies, 3 variations for zombie boys and they all have different perks and strengths simple random or tiny nudges to their stats type thing utilize the horde well, and we spawn a teacher a male and a female variation where they are boss and basically stop the player for a bit, are super fast etc kind of OP
-
-Then add health mechanic so we are healed so drop health packs etc. and let zombies harm you and zombies be killed. And thus adding the score to the top
-
-At this point it's all good to go so add a game over screen
-
-And finally the director AI spawning all these zombies to get you with the tension meter mechanic. (L4D inspired)
-
-Then add the fade out when we are about to begin the game effect so it looks cool and better with ok pacing when starting game game over stuff too etc
-
-Then the music and sound design
-
-Also make the resolution of the Engine be automatic to the screens size
-
-Build an Arcade Cabinet with this game! I will do that once I acquire better resources. For now the project is complete at this time.
+Note:
+There is an unfinished project in src showing a bit of how one would tackle doing a shooter, etc! Have fun!
