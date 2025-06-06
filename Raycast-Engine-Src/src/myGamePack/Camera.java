@@ -11,6 +11,7 @@ public class Camera implements KeyListener {
 	public double MOVE_SPEED;
 	public double ROTATION_SPEED;
 	public double player_degree = 0;
+	public double BUFFER_DISTANCE = 0.4;
 
 	public Camera(double x, double y, double xd, double yd, double xp, double yp, double walkingSpeed,
 			double turningSpeed) {
@@ -20,7 +21,7 @@ public class Camera implements KeyListener {
 		yDir = yd;
 		xPlane = xp;
 		yPlane = yp;
-		player_degree = Math.toDegrees(Math.atan2(yDir, xDir)) + 180;
+		player_degree = (Math.toDegrees(Math.atan2(yDir, xDir))+270)%360;
 		MOVE_SPEED = walkingSpeed;
 		ROTATION_SPEED = turningSpeed;
 	}
@@ -85,15 +86,15 @@ public class Camera implements KeyListener {
 
 	public void update(String[][] layer0, String[][] layer1, String[] event_data) {
 		if (forward) {
-			if (layer1[(int) (xPos + xDir * MOVE_SPEED)][(int) yPos].contains("sprite"))
+			if (layer1[(int) (xPos + xDir * (MOVE_SPEED + BUFFER_DISTANCE))][(int) yPos].contains("sprite"))
 				xPos += xDir * MOVE_SPEED;
-			if (layer1[(int) xPos][(int) (yPos + yDir * MOVE_SPEED)].contains("sprite"))
+			if (layer1[(int) xPos][(int) (yPos + yDir * (MOVE_SPEED + BUFFER_DISTANCE))].contains("sprite"))
 				yPos += yDir * MOVE_SPEED;
 		}
 		if (back) {
-			if (layer1[(int) (xPos - xDir * MOVE_SPEED)][(int) yPos].contains("sprite"))
+			if (layer1[(int) (xPos - xDir * (MOVE_SPEED + BUFFER_DISTANCE))][(int) yPos].contains("sprite"))
 				xPos -= xDir * MOVE_SPEED;
-			if (layer1[(int) xPos][(int) (yPos - yDir * MOVE_SPEED)].contains("sprite"))
+			if (layer1[(int) xPos][(int) (yPos - yDir * (MOVE_SPEED + BUFFER_DISTANCE))].contains("sprite"))
 				yPos -= yDir * MOVE_SPEED;
 		}
 		if (right) {
@@ -103,7 +104,7 @@ public class Camera implements KeyListener {
 			double oldxPlane = xPlane;
 			xPlane = xPlane * Math.cos(-ROTATION_SPEED) - yPlane * Math.sin(-ROTATION_SPEED);
 			yPlane = oldxPlane * Math.sin(-ROTATION_SPEED) + yPlane * Math.cos(-ROTATION_SPEED);
-			player_degree = Math.toDegrees(Math.atan2(yDir, xDir)) + 180;
+			player_degree = (Math.toDegrees(Math.atan2(yDir, xDir)) + 270)%360;
 		}
 		if (left) {
 			double oldxDir = xDir;
@@ -112,7 +113,7 @@ public class Camera implements KeyListener {
 			double oldxPlane = xPlane;
 			xPlane = xPlane * Math.cos(ROTATION_SPEED) - yPlane * Math.sin(ROTATION_SPEED);
 			yPlane = oldxPlane * Math.sin(ROTATION_SPEED) + yPlane * Math.cos(ROTATION_SPEED);
-			player_degree = Math.toDegrees(Math.atan2(yDir, xDir)) + 180;
+			player_degree = (Math.toDegrees(Math.atan2(yDir, xDir)) + 270)%360;
 		}
 	}
 }

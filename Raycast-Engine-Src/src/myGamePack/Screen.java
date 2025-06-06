@@ -3,19 +3,7 @@ package myGamePack;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
@@ -51,10 +39,9 @@ public class Screen {
 	private HashMap<String, Object> user_temp_variables = new HashMap<>();
 	private int SCREEN_W;
 	private int SCREEN_H;
-	private int entity_limit = 20;
-	private int maxLimitDistance = Game.MAX_WORLD_LIMIT;
-	private HashMap<String, List<String>> entities_path_memory = new HashMap<>();
-	private HashMap<String, String> entities_lastseen_memory = new HashMap<>();
+	private int entity_limit = 30;
+	private int entity_count = 0;
+	private double BUFFER_DIST;
 	
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
 			HashMap<String, Texture> allTextures, int game_width, int game_height, int fog_col,
@@ -63,6 +50,7 @@ public class Screen {
 		this.layer0 = layer0;
 		this.layer1 = layer1;
 		this.event_data = event_data;
+		BUFFER_DIST = camera.BUFFER_DISTANCE;
 		mapWidth = MAX_WORLD_LIMIT;
 		mapHeight = MAX_WORLD_LIMIT;
 		textures = allTextures;
@@ -697,6 +685,7 @@ public class Screen {
 		spriteListTemp.add(newSprite);
 		spriteArr = spriteListTemp.toArray(new Sprite[0]);
 		addScript(behavior_script, pos_x, pos_y);
+		entity_count++;
 	}
 	
 	public int edit_entity(String entityid, String spritename, double pos_x, double pos_y) {
@@ -757,7 +746,7 @@ public class Screen {
 	    return null;
 	}
 	
-	public void remove_entity(String entityid) {
+	public void remove_entity(String entityid, String script_name) {
 		ArrayList<Sprite> spriteListTemp = new ArrayList<>(Arrays.asList(spriteArr));
 	    for (int i = spriteListTemp.size() - 1; i >= 0; i--) {
 	        if (spriteListTemp.get(i).getSpriteId().equals(entityid)) {
@@ -766,15 +755,12 @@ public class Screen {
 	        }
 	    }
 	    spriteArr = spriteListTemp.toArray(new Sprite[0]);
-	    endScriptByPosition(get_entity_behavior_script(entityid), get_entity_pos_x(entityid), get_entity_pos_y(entityid));
+	    endScript(script_name);
+	    entity_count--;
 	}
 	
 	public void set_entity_limit(int limit) {
 		entity_limit = limit;
-	}
-	
-	public void set_entity_travel_dist(int maxDist) {
-		maxLimitDistance = maxDist;
 	}
 	
 	public int read_entity_limit() {
@@ -782,7 +768,7 @@ public class Screen {
 	}
 	
 	public int read_entity_count() {
-		return entities_path_memory.size();
+		return entity_count;
 	}
 	
 	public double euclidean_distance(double startx, double targetx, double starty, double targety) {
@@ -797,32 +783,6 @@ public class Screen {
 	    return dx + dy;
 	}
 	
-	public boolean within_bounds(double[] dirs, double x, double y, double length) {
-		return y+dirs[1] >= 0 && y+dirs[1] <= length-1 && x+dirs[0] >= 0 && x+dirs[0] <= length-1;
-	}
-	
-	public Node search_node(List<Node> closedList, String id) {
-		for (Node node : closedList) {
-	        if (node.id.equals(id)) {
-	            return node;
-	        }
-	    }
-	    return null;
-	}
-	
-	public String search_next_in_path(double x, double y, List<String> path) {
-	    String current = x + "," + y;
-	    for (int i = 0; i < path.size() - 1; i++) {
-	        if (path.get(i).equals(current)) {
-	            String[] parts = path.get(i + 1).split(",");
-	            double nextX = Double.parseDouble(parts[0]);
-	            double nextY = Double.parseDouble(parts[1]);
-	            return nextX+","+nextY;
-	        }
-	    }
-	    return x+","+y;
-	}
-	
 	public double decodeXfromPathString(String path_comma_sep) {
 	    String[] parts = path_comma_sep.split(",");
 	    return Double.parseDouble(parts[0]);
@@ -833,124 +793,79 @@ public class Screen {
 	    return Double.parseDouble(parts[1]);
 	}
 	
-	public boolean check_wall(double startx, double starty, double collision_offset) {
-		return !layer1[(int)(startx)][(int)(starty + collision_offset)].startsWith("block")
-				&& !layer1[(int)(startx)][(int)(starty - collision_offset)].startsWith("block")
-				&& !layer1[(int)(startx + collision_offset)][(int)(starty)].startsWith("block")
-				&& !layer1[(int)(startx - collision_offset)][(int)(starty)].startsWith("block")
-				&& !layer1[(int)(startx + collision_offset)][(int)(starty + collision_offset)].startsWith("block")
-				&& !layer1[(int)(startx + collision_offset)][(int)(starty - collision_offset)].startsWith("block") 
-				&& !layer1[(int)(startx - collision_offset)][(int)(starty + collision_offset)].startsWith("block")
-				&& !layer1[(int)(startx - collision_offset)][(int)(starty - collision_offset)].startsWith("block");
+	public boolean[] check_wall(double xPos, double yPos, double BUFFER_DISTANCE, int xDir, int yDir, double MOVE_SPEED) {
+			boolean[] good_to_move_dirs = new boolean[] {false, false};
+			if (layer1[(int) (xPos + xDir * (MOVE_SPEED + BUFFER_DISTANCE))][(int) yPos].contains("sprite"))
+				good_to_move_dirs[0] = true;
+			if (layer1[(int) xPos][(int) (yPos + yDir * (MOVE_SPEED + BUFFER_DISTANCE))].contains("sprite"))
+				good_to_move_dirs[1] = true;
+		return good_to_move_dirs;
 	}
 	
-	public String pathfindToward(String entityid, double source_x, double source_y, double target_x, double target_y, double speed) {
-		if (entities_path_memory.containsKey(entityid) && Math.abs(decodeXfromPathString(entities_lastseen_memory.get(entityid))-target_x)<=0.4 && 
-				Math.abs(decodeYfromPathString(entities_lastseen_memory.get(entityid))-target_y)<=0.4) {
-			List<String> path = entities_path_memory.get(entityid);
-			return search_next_in_path(source_x, source_y, path);
+	public double get_buffer_dist() {
+		return BUFFER_DIST;
+	}
+	
+	public String pathfindToward(String entityid, double source_x, double source_y, double targetx, double targety, double speed) {
+		if (Math.abs(targety-source_y)<BUFFER_DIST && Math.abs(targetx-source_x)<BUFFER_DIST) {
+			return source_x + "," + source_y;
 		}
-		entities_lastseen_memory.put(entityid, target_x+","+target_y);
-		double startx = source_x;
-		double starty = source_y;
-		double targetx = target_x;
-		double targety = target_y;
-		double[] directionNorth = {-speed, 0};
-		double[] directionSouth = {speed, 0};
-		double[] directionEast = {0, speed};
-		double[] directionWest = {0, -speed};
-		double[] directionNorthEast = {-speed, speed};
-		double[] directionSouthEast = {speed, speed};
-		double[] directionSouthWest = {speed, -speed};
-		double[] directionNorthWest = {-speed, -speed};
-		double[][] directions = {
-		    directionNorth,
-		    directionEast,
-		    directionSouth,
-		    directionWest,
-		    directionNorthEast,
-		    directionSouthEast,
-		    directionSouthWest,
-		    directionNorthWest
-		};
-		List<Node> openList = new ArrayList<>();
-		List<Node> closedList = new ArrayList<>();
-		boolean start = true;
-		int i = 0;
-		boolean no_path_found = false;
-		double prevNodeX = 0.0;
-		double prevNodeY = 0.0;
-		while (i < maxLimitDistance) {
-		    if (Math.abs(startx-targetx)<=0.6 && Math.abs(starty-targety)<=0.6) {
-		    	prevNodeX = startx;
-		    	prevNodeY = starty;
-		        break;
-		    }
-		    if (start) {
-		        double h = euclidean_distance(startx, targetx, starty, targety);
-		        closedList.add(new Node(startx, starty, -1.0, -1.0, h));
-		        for (double[] dirs : directions) {
-		            if (within_bounds(dirs, startx, starty, (double)Game.MAX_WORLD_LIMIT) && check_wall(startx, starty, 0.1)) {
-		                h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);
-		                openList.add(new Node(startx + dirs[0], starty + dirs[1], startx, starty, h));
-		            }
-		        }
-		        openList.sort((a, b) -> Double.compare(b.h, a.h));
-		        Node bestNode = openList.remove(openList.size() - 1);
-		        closedList.add(bestNode);
-		        startx = bestNode.x;
-		        starty = bestNode.y;
-		        start = false;
-		        continue;
-		    }
-		    for (double[] dirs : directions) {
-		        if (within_bounds(dirs, startx, starty, Game.MAX_WORLD_LIMIT) && check_wall(startx, starty, 0.1)) {
-		            String id = (startx + dirs[0]) + "," + (starty + dirs[1]);
-		            if (search_node(closedList, id) == null) {
-		                double h = euclidean_distance(startx + dirs[0], targetx, starty + dirs[1], targety);
-		                openList.add(new Node(startx + dirs[0], starty + dirs[1], startx, starty, h));
-		            }
-		        }
-		    }
-		    openList.sort((a, b) -> Double.compare(b.h, a.h));
-		    if (openList.isEmpty()) {
-		    	no_path_found = true;
-		    	break;
-		    }
-		    Node bestNode = openList.remove(openList.size() - 1);
-		    closedList.add(bestNode);
-		    startx = bestNode.x;
-		    starty = bestNode.y;
-		    i++;
+		int y_dir = 0;
+		if (Math.abs(targety-source_y)<BUFFER_DIST) {
+			y_dir = 0;
+		} else if (targety > source_y) {
+			y_dir = 1;
+		} else if (targety < source_y) {
+			y_dir = -1;
 		}
-		if (no_path_found) {
-			List<String> reconstruct = new ArrayList<>();
-			reconstruct.add(source_x + "," + source_y);
-			entities_path_memory.put(entityid, reconstruct);
-			return source_x+","+source_y;
+		int x_dir = 0;
+		if (Math.abs(targetx-source_x)<BUFFER_DIST) {
+			x_dir = 0;
+		} else if (targetx > source_x) {
+			x_dir = 1;
+		} else if (targetx < source_x) {
+			x_dir = -1;
 		}
-		start = true;
-		List<String> reconstruct = new ArrayList<>();
-		while (true) {
-		    if (prevNodeX == -1.0 && prevNodeY == -1.0) {
-		        break;
-		    }
-		    Node currentNode = search_node(closedList, prevNodeX + "," + prevNodeY);
-		    if (currentNode==null) {
-				reconstruct.add(source_x + "," + source_y);
-				entities_path_memory.put(entityid, reconstruct);
-		    	return source_x+ ","+source_y;
-		    }
-		    reconstruct.add(currentNode.x + "," + currentNode.y);
-		    prevNodeX = currentNode.parentX;
-		    prevNodeY = currentNode.parentY;
-		}
-		Collections.reverse(reconstruct);
-		if (read_entity_count() <= read_entity_limit()) {
-			entities_path_memory.put(entityid, reconstruct);
-			return source_x+ ","+source_y;
-		}
-		return null;
+		double newx = source_x + (x_dir*speed);
+        double newy = source_y + (y_dir*speed);
+        boolean[] gooddirs = check_wall(newx, newy, BUFFER_DIST, x_dir, y_dir, speed);
+        if (gooddirs[0] && gooddirs[1]) {
+            return newx + "," + newy;
+        } else if (gooddirs[0]) {
+        	return newx + "," + source_y;
+        } else if (gooddirs[1]) {
+        	return source_x + "," + newy;
+        }
+        return source_x + "," + source_y;
+	}
+	
+	public double abs(double value) {
+		return Math.abs(value);
+	}
+	
+	public double cos(double degree) {
+		return Math.cos(degree);
+	}
+	
+	public double sin(double degree) {
+		return Math.sin(degree);
+	}
+	
+	public String padWithLeadingZeros(int number, int totalLength) {
+	    return String.format("%0" + totalLength + "d", number);
+	}
+	
+	public double getAngleBetweenVectors(double zvectorx, double zvectory, double pvectorx, double pvectory) {
+		double dotProduct = zvectorx * pvectorx + zvectory * pvectory;
+	    double zMagnitude = Math.sqrt(zvectorx * zvectorx + zvectory * zvectory);
+	    double pMagnitude = Math.sqrt(pvectorx * pvectorx + pvectory * pvectory);
+	    if (zMagnitude == 0 || pMagnitude == 0) {
+	        return 0.0;
+	    }
+	    double cosTheta = dotProduct / (zMagnitude * pMagnitude);
+	    cosTheta = Math.max(-1.0, Math.min(1.0, cosTheta));
+	    double angleInDegrees = Math.toDegrees(Math.acos(cosTheta));
+	    return angleInDegrees;
 	}
 	
 	public void consoleDoubleLog(double value) {

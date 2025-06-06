@@ -60,13 +60,36 @@ if REAPI:readTempVar("isGame")==1 then
     elseif (REAPI:readTempVar("pressShiftOnce")==1) then
         REAPI:addUIToScreen("gunidle.png", 0, 0)
     end
+    
+    if (REAPI:readTempVar("health")==0) then
+        REAPI:writeTempVar("isGameOver", 1)
+        REAPI:writeTempVar("isGame", 0)
+    elseif (REAPI:readTempVar("health")<=2) then
+        REAPI:addUIToScreen("blood_overlay_3.png", 0, 0)
+    elseif (REAPI:readTempVar("health")<=4) then
+        REAPI:addUIToScreen("blood_overlay_2.png", 0, 0)
+    elseif (REAPI:readTempVar("health")<=6) then
+        REAPI:addUIToScreen("blood_overlay_1.png", 0, 0)
+    elseif (REAPI:readTempVar("health")<=8) then
+        REAPI:addUIToScreen("blood_overlay_0.png", 0, 0)
+    end
 
-    REAPI:addUIToScreen("health100.png", 4, 228)
+    local current_health = "health" .. REAPI:readTempVar("health") .. ".png"
+    REAPI:addUIToScreen(current_health, 4, 228)
+    
+    local score_to_show = REAPI:padWithLeadingZeros(REAPI:readTempVar("score"), 8)
+    REAPI:displayText(score_to_show, 50, 10, "font_16px.png")
+    
     REAPI:addUIToScreen("ui.png", 0, 0)
-    REAPI:displayText("00000000", 50, 10, "font_16px.png")
+
 end
 
+if REAPI:readTempVar("isGameOver")==1 then
+    REAPI:addUIToScreen("blood_overlay_4.png", 0, 0)
+    if REAPI:getFrameNumber()%10<5 then
+        REAPI:displayText("GAME OVER", 56, 100, "font_16px.png")
+    end
+    local score_to_show = REAPI:padWithLeadingZeros(REAPI:readTempVar("score"), 8)
+    REAPI:displayText(score_to_show, 64, 128, "font_16px.png")
+end
 
-
-
-        

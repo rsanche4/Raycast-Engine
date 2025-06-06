@@ -10,6 +10,8 @@ REAPI:writeTempVar("pressEnterOnce", 1)
 REAPI:writeTempVar("pressSpaceOnce", 1)
 REAPI:writeTempVar("pressShiftOnce", 1)
 REAPI:writeTempVar("ammo", 7)
+REAPI:writeTempVar("health", 10)
+REAPI:writeTempVar("score", 0)
 
 REAPI:endScript("var_init.lua")
 
