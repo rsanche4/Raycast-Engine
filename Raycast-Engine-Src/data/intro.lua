@@ -1,12 +1,16 @@
 local event_x = ...
 local event_y = select(2, ...)
 
-local separ = 10
-local initplace_x = 10
-local initplace = 30
-
 if REAPI:readTempVar("isIntro") == 1 then
-    REAPI:addUIToScreen("menuDark.png", 0, 0)
+    local separ = 10
+    local initplace_x = 10
+    local initplace = 275-REAPI:readTempVar("introFadeIn")
+
+    if REAPI:readTempVar("introFadeIn") < 245 then
+        REAPI:writeTempVar("introFadeIn", REAPI:readTempVar("introFadeIn")+1)
+    end
+
+    REAPI:addUIToScreen("menuDark.png", 0, 0, 255)
     REAPI:displayText("She was supposed to be in", initplace_x, initplace, "font_8px.png")
     REAPI:displayText("algebra class. Instead, she", initplace_x, initplace + separ, "font_8px.png")
     REAPI:displayText("was hiding behind the back", initplace_x, initplace + separ*2, "font_8px.png")
@@ -28,13 +32,19 @@ if REAPI:readTempVar("isIntro") == 1 then
     if REAPI:getFrameNumber()%20<15 then
         REAPI:displayText("Press Start to Begin", initplace_x, initplace + separ*19, "font_8px.png")
     end
+
+    if (REAPI:getKeyPressed("enter") and REAPI:readTempVar("pressEnterOnce")==1 and REAPI:readTempVar("isIntro")==1) then
+        REAPI:writeTempVar("isIntro", 0)
+        REAPI:writeTempVar("isGame", 1)
+        REAPI:setPlayerX(250)
+        REAPI:setPlayerY(250)
+        REAPI:setPlayerDirection(1, 0, 0, -.66)
+        REAPI:stopBGM()
+        REAPI:playSE("start.wav", false)
+        REAPI:playBGM("runshoot.wav", true)
+        REAPI:endScript("intro.lua")
+    end
+
 end
 
-if (REAPI:getKeyPressed("enter") and REAPI:readTempVar("pressEnterOnce")==1 and REAPI:readTempVar("isIntro")==1) then
-    REAPI:writeTempVar("isIntro", 0)
-    REAPI:writeTempVar("isGame", 1)
-    REAPI:setPlayerX(250)
-    REAPI:setPlayerY(250)
-    REAPI:setPlayerDirection(1, 0, 0, -.66)
-    REAPI:endScript("intro.lua")
-end
+

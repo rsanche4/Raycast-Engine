@@ -1,7 +1,9 @@
 package myGamePack;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Toolkit;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
@@ -161,8 +163,10 @@ public class Game extends JFrame implements Runnable {
 			game_title = config.get("game_title");
 			game_version = config.get("game_version");
 			current_world = config.get("world_init");
-			SCREEN_W = Integer.parseInt(config.get("game_width"));
-			SCREEN_H = Integer.parseInt(config.get("game_height"));
+	        Toolkit toolkit = Toolkit.getDefaultToolkit();
+	        Dimension screenSize = toolkit.getScreenSize();
+			SCREEN_W = screenSize.width;
+			SCREEN_H = screenSize.height;
 			String content = new String(Files.readAllBytes(Paths.get("data/worlds_data.json")));
 			JSONObject jsonObject = new JSONObject(content);
 			JSONArray worlds_data = jsonObject.getJSONArray("world_data");

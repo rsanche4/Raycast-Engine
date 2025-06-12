@@ -495,19 +495,36 @@ public class Screen {
 		return height;
 	}
 
-	public void addUIToScreen(String textureName, int pos_x, int pos_y) {
-        for (int y = 0; y < textures.get(textureName).IMG_HEI; y++) {
-            for (int x = 0; x < textures.get(textureName).IMG_WID; x++) {
-                int screenX = pos_x + x;
-                int screenY = pos_y + y;
-                int screenIndex = screenY * width + screenX;  
-                if (screenX >= 0 && screenX < width && screenY >= 0 && screenY < height && textures.get(textureName).pixels[y * textures.get(textureName).IMG_WID + x]!=0x000000) {
-                    pixels[screenIndex] = textures.get(textureName).pixels[y * textures.get(textureName).IMG_WID + x]; 
-                }
-            }
-        }
+	public void addUIToScreen(String textureName, int pos_x, int pos_y, int opacity) {
+	    Texture texture = textures.get(textureName);
+	    if (texture == null) return;
+	    float opacityFactor = opacity / 255.0f;
+	    for (int y = 0; y < texture.IMG_HEI; y++) {
+	        for (int x = 0; x < texture.IMG_WID; x++) {
+	            int screenX = pos_x + x;
+	            int screenY = pos_y + y;
+	            if (screenX >= 0 && screenX < width && screenY >= 0 && screenY < height) {
+	                int srcPixel = texture.pixels[y * texture.IMG_WID + x];
+	                if ((srcPixel & 0xFF000000) != 0 || srcPixel != 0x000000) {
+	                    int screenIndex = screenY * width + screenX;
+	                    int dstPixel = pixels[screenIndex];
+	                    int Rb = (dstPixel >> 16) & 0xFF;
+	                    int Gb = (dstPixel >> 8) & 0xFF;
+	                    int Bb = dstPixel & 0xFF;
+	                    
+	                    int Rf = (srcPixel >> 16) & 0xFF;
+	                    int Gf = (srcPixel >> 8) & 0xFF;
+	                    int Bf = srcPixel & 0xFF;
+	                    int Rr = Math.min(255, (int)(Rf * opacityFactor + Rb * (1 - opacityFactor)));
+	                    int Gr = Math.min(255, (int)(Gf * opacityFactor + Gb * (1 - opacityFactor)));
+	                    int Br = Math.min(255, (int)(Bf * opacityFactor + Bb * (1 - opacityFactor)));
+	                    pixels[screenIndex] = 0xFF000000 | (Rr << 16) | (Gr << 8) | Br;
+	                }
+	            }
+	        }
+	    }
 	}
-
+	
 	public String getSkybox() {
 		return skyb;
 	}
@@ -872,13 +889,19 @@ public class Screen {
 		System.out.println(Double.toString(value));
 	}
 	
+	public int minInt(int a, int b) {
+		return Math.min(a, b);
+	}
+	
+	public int maxInt(int a, int b) {
+		return Math.max(a, b);
+	}
+	
 	public void displayText(String text, int pos_x, int pos_y, String fontfile) {
 	    text = text.toLowerCase(); 
 	    int[] font_pixels = textures.get(fontfile).pixels; 
 	    int cursor = pos_x;  
-	    
 	    int font_original_pixel_size = textures.get(fontfile).IMG_HEI / 43; 
-	    
 	    for (int i = 0; i < text.length(); i++) {
 	        int letter_location_in_fontpng = -1;  
 	        switch (text.charAt(i)) {
@@ -928,20 +951,20 @@ public class Screen {
 	            case ':': letter_location_in_fontpng = 40; break;
 	            default: letter_location_in_fontpng = -1; break;
 	        }
-
 	        if (letter_location_in_fontpng > -1) {
+	        	if (cursor + font_original_pixel_size > width) {
+	                break;
+	            }
 	            for (int j = 0; j < font_original_pixel_size; j++) {
 	                for (int k = 0; k < font_original_pixel_size; k++) {
 	                    int font_index = (letter_location_in_fontpng * font_original_pixel_size + j) * font_original_pixel_size + k;
 	                    int ind = (pos_y + j) * width + (cursor + k); 
-
 	                    if (ind < width * height && font_pixels[font_index]!=0x000000) {
 	                        pixels[ind] = font_pixels[font_index];
 	                    }
 	                }
 	            }
 	        }
-
 	        cursor += font_original_pixel_size;
 	    }
 	}

@@ -6,16 +6,24 @@ local index = 0
 local script_name = "common_female" .. index .. ".lua"
 local ent_id = "zombie_" .. index
 
-local animationsWalk = {"sprite_common_female_walk0.png", "sprite_common_female_walk1.png"}
+local animationsWalk = {"sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk1_femalestudent1.png", "sprite_zom_walk2_femalestudent1.png", "sprite_zom_walk1_femalestudent1.png"}
+local atkAnim = "sprite_zom_atk_femalestudent1.png"
+local isAtk = false
 
 local animation_index = 1
-if REAPI:getFrameNumber()%10 < 5 then
+if REAPI:getFrameNumber()%16 < 4 then
     animation_index = 2
+elseif REAPI:getFrameNumber()%16 < 8 then
+    animation_index = 3
+elseif REAPI:getFrameNumber()%16 < 12 then
+    animation_index = 4
 end
 
 if (REAPI:readTempVar("health")>0 and REAPI:abs(event_x-REAPI:getPlayerX())<REAPI:get_buffer_dist() and REAPI:abs(event_y-REAPI:getPlayerY())<REAPI:get_buffer_dist()) and REAPI:getFrameNumber()%50 < 1 then
     REAPI:writeTempVar("health", REAPI:readTempVar("health")-1)
-    REAPI:addUIToScreen("claweffect.png", 0, 0)
+    REAPI:addUIToScreen("claweffect.png", 0, 0, 175)
+    REAPI:playSE("commonatk.wav", false)
+    isAtk = true
 end
 
 if (REAPI:readTempVar("gunshotAnimation")==1) then
@@ -32,11 +40,19 @@ if (REAPI:readTempVar("gunshotAnimation")==1) then
     local hit_threshold_len = 2
     if (angle_between<hit_threshold_angle and REAPI:euclidean_distance(zx, px, zy, py)<hit_threshold_len) then
         REAPI:writeTempVar("score", REAPI:readTempVar("score")+1)
+        REAPI:playSE("commondead.wav", false)
         REAPI:remove_entity(ent_id, script_name)
     end
 end
 
-local movexy = REAPI:pathfindToward(ent_id, event_x, event_y, REAPI:getPlayerX(), REAPI:getPlayerY(), speed)
-REAPI:edit_entity(ent_id, animationsWalk[animation_index], REAPI:decodeXfromPathString(movexy), REAPI:decodeYfromPathString(movexy))
+if isAtk then
+    local movexy = REAPI:pathfindToward(ent_id, event_x, event_y, REAPI:getPlayerX(), REAPI:getPlayerY(), speed)
+    REAPI:edit_entity(ent_id, atkAnim, REAPI:decodeXfromPathString(movexy), REAPI:decodeYfromPathString(movexy))
+else
+    local movexy = REAPI:pathfindToward(ent_id, event_x, event_y, REAPI:getPlayerX(), REAPI:getPlayerY(), speed)
+    REAPI:edit_entity(ent_id, animationsWalk[animation_index], REAPI:decodeXfromPathString(movexy), REAPI:decodeYfromPathString(movexy))
+end
+
+
 
 
