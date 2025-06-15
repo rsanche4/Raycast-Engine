@@ -6,7 +6,7 @@ if (REAPI:readVar("health")==0 or REAPI:readVar("score")==99999999) then
     REAPI:remove_entity(event_name)
 end
 
-local speed = 0.04 + (REAPI:randomInt(1, 10)/1000)
+local speed = 0.05 + (REAPI:randomInt(1, 10)/1000)
 local ent_id = event_name
 
 local animationsWalk = {"sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk1_femalestudent0.png", "sprite_zom_walk2_femalestudent0.png", "sprite_zom_walk1_femalestudent0.png"}
@@ -66,6 +66,7 @@ if (REAPI:readVar("gunshotAnimation")==1) then
         else
             REAPI:playSE("commondead.wav", false)
         end
+        REAPI:writeVar("playerKillsCurrentWave", REAPI:readVar("playerKillsCurrentWave")+1)
         REAPI:remove_entity(ent_id)
     end
 end

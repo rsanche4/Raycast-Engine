@@ -134,7 +134,7 @@ public class Game extends JFrame implements Runnable {
 			while (delta >= 1) {
 				screen.update(frame_num);
 				camera.update(layer0, layer1);
-				frame_num++;
+				frame_num = (frame_num + 1) % 1000;
 				delta--;
 			}
 			render();

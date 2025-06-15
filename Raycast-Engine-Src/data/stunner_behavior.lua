@@ -6,7 +6,7 @@ if (REAPI:readVar("health")==0 or REAPI:readVar("score")==99999999) then
     REAPI:remove_entity(event_name)
 end
 
-local speed = 0.04
+local speed = 0.05
 local ent_id = event_name
 
 local animationsWalk = {"sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk1_femaleteacher.png", "sprite_zom_walk2_femaleteacher.png", "sprite_zom_walk1_femaleteacher.png"}
@@ -44,6 +44,7 @@ if (REAPI:readVar("gunshotAnimation")==1) then
     if (angle_between<hit_threshold_angle and REAPI:euclidean_distance(zx, px, zy, py)<hit_threshold_len) then
         REAPI:writeVar("score", REAPI:readVar("score")+1)
         REAPI:playSE("commonfemdead.wav", false)
+        REAPI:writeVar("playerKillsCurrentWave", REAPI:readVar("playerKillsCurrentWave")+1)
         REAPI:remove_entity(ent_id)
     end
 end

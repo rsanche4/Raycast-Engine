@@ -2,7 +2,25 @@ local event_x = ...
 local event_y = select(2, ...)
 local event_name = select(3, ...)
 
-local spawn_points = {{233, 244},{234, 264},{234, 278},{235, 224},{243, 213},{254, 222},{262, 222},{266, 226},{261, 228},{254, 228},{251, 243},{254, 265},{243, 290},{252, 290},{262, 278},{266, 267},{266, 252},{266, 238}}
+local constant_spawning = false
+local spawn_points = {
+    {249, 239},
+    {251, 243},
+    {249, 265},
+    {253, 278},
+    {262, 278},
+    {264, 270},
+    {266, 267},
+    {264, 261},
+    {266, 252},
+    {266, 238},
+    {264, 237},
+    {266, 226},
+    {261, 228},
+    {254, 228},
+    {261, 249},
+    {254, 265}
+}
 local spawn_points_len = #spawn_points
 local population_array = {"sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png"}
 
@@ -70,9 +88,10 @@ if REAPI:readVar("isGame") == 1 then
             remaining = remaining - spawn_count
             REAPI:writeVar("directorVarZ", remaining)
         end
-    else
+    elseif (constant_spawning or REAPI:readVar("playerKillsCurrentWave")>=REAPI:readVar("directorVarZInit")) then
         REAPI:writeVar("directorVarZInit", REAPI:readVar("directorVarZInit")+REAPI:readVar("directorVarBeta"))
         REAPI:writeVar("directorVarZ", REAPI:readVar("directorVarZInit"))
         REAPI:writeVar("directorVarWaveCount", REAPI:readVar("directorVarWaveCount")+1)
+        REAPI:writeVar("playerKillsCurrentWave", 0)
     end
 end

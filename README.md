@@ -9,4 +9,6 @@ Let me show you a quick demo of the famous liminal space "The Backrooms" rendere
 [![Watch the video](https://img.youtube.com/vi/9v8R9GMLWoM/0.jpg)](https://youtu.be/9v8R9GMLWoM)
 
 Note: there is currently the arcade game Dead Shot Girl full source code in the src folder under data. This shows how to use the engine for a shooter arcade type game!
-Have fun!
+If you would like to play it you can download it here:
+https://www.moddb.com/games/dead-shot-girl
+Have fun!!

@@ -20,11 +20,12 @@ REAPI:writeVar("introFadeIn", 0)
 REAPI:writeVar("playReloadSEonce", 0)
 REAPI:writeVar("playGameOverOnce", 1)
 
+REAPI:writeVar("playerKillsCurrentWave", 0)
 REAPI:writeVar("directorVarZInit", 5)
 REAPI:writeVar("directorVarZ", 5)
 REAPI:writeVar("directorVarWaveCount", 0)
 REAPI:writeVar("directorVarAlpha", 30)
-REAPI:writeVar("directorVarBeta", 1)
+REAPI:writeVar("directorVarBeta", 5)
 
 REAPI:writeVar("uuid", 0)
 

@@ -88,7 +88,7 @@ if REAPI:readVar("isGame")==1 then
     local current_health = "health" .. REAPI:readVar("health") .. ".png"
     REAPI:addUIToScreen(current_health, 4, 228, 255)
     
-    local score_to_show = REAPI:padWithLeadingZeros(REAPI:readVar("score"), 8)
+    local score_to_show = REAPI:padWithLeadingZeros(score_limit-REAPI:readVar("score"), 8)
     REAPI:displayText(score_to_show, 50, 10, "font_16px.png")
     
     REAPI:addUIToScreen("ui.png", 0, 0, 255)
@@ -130,7 +130,7 @@ if REAPI:readVar("isGameOver")==1 then
     if REAPI:getFrameNumber()%10<5 then
         REAPI:displayText("R. I. P.", 64, 100, "font_16px.png")
     end
-    local score_to_show = "Killcount: " .. REAPI:padWithLeadingZeros(REAPI:readVar("score"), 8)
+    local score_to_show = "Killcount: " .. REAPI:padWithLeadingZeros(score_limit-REAPI:readVar("score"), 8)
     REAPI:displayText(score_to_show, 52, 128, "font_8px.png")
 
     if REAPI:getKeyPressed("enter") then

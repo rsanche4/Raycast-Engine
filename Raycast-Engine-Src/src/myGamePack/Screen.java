@@ -821,7 +821,6 @@ public class Screen {
 		return BUFFER_DIST;
 	}
 	
-	// TODO make it so its BFS not just whatever this is, and efficient BFS do not search in n times, implement a key val thing so its really fast to get the first 
 	public String pathfindToward(String entityid, double source_x, double source_y, double targetx, double targety, double speed) {
 		if (Math.abs(targety-source_y)<BUFFER_DIST && Math.abs(targetx-source_x)<BUFFER_DIST) {
 			return source_x + "," + source_y;
