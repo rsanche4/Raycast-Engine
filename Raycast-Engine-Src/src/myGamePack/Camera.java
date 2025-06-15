@@ -84,7 +84,7 @@ public class Camera implements KeyListener {
 		}
 	}
 
-	public void update(String[][] layer0, String[][] layer1, String[] event_data) {
+	public void update(String[][] layer0, String[][] layer1) {
 		if (forward) {
 			if (layer1[(int) (xPos + xDir * (MOVE_SPEED + BUFFER_DISTANCE))][(int) yPos].contains("sprite"))
 				xPos += xDir * MOVE_SPEED;

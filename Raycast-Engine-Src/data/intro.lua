@@ -1,13 +1,14 @@
 local event_x = ...
 local event_y = select(2, ...)
+local event_name = select(3, ...)
 
-if REAPI:readTempVar("isIntro") == 1 then
+if REAPI:readVar("isIntro") == 1 then
     local separ = 10
     local initplace_x = 10
-    local initplace = 275-REAPI:readTempVar("introFadeIn")
+    local initplace = 275-REAPI:readVar("introFadeIn")
 
-    if REAPI:readTempVar("introFadeIn") < 245 then
-        REAPI:writeTempVar("introFadeIn", REAPI:readTempVar("introFadeIn")+1)
+    if REAPI:readVar("introFadeIn") < 245 then
+        REAPI:writeVar("introFadeIn", REAPI:readVar("introFadeIn")+1)
     end
 
     REAPI:addUIToScreen("menuDark.png", 0, 0, 255)
@@ -33,9 +34,9 @@ if REAPI:readTempVar("isIntro") == 1 then
         REAPI:displayText("Press Start to Begin", initplace_x, initplace + separ*19, "font_8px.png")
     end
 
-    if (REAPI:getKeyPressed("enter") and REAPI:readTempVar("pressEnterOnce")==1 and REAPI:readTempVar("isIntro")==1) then
-        REAPI:writeTempVar("isIntro", 0)
-        REAPI:writeTempVar("isGame", 1)
+    if (REAPI:getKeyPressed("enter") and REAPI:readVar("pressEnterOnce")==1 and REAPI:readVar("isIntro")==1) then
+        REAPI:writeVar("isIntro", 0)
+        REAPI:writeVar("isGame", 1)
         REAPI:setPlayerX(250)
         REAPI:setPlayerY(250)
         REAPI:setPlayerDirection(1, 0, 0, -.66)

@@ -40,6 +40,7 @@ public class Game extends JFrame implements Runnable {
 	private static String[][] layer0;
 	private static String[][] layer1;
 	private static String[] event_data;
+	private static String[] event_data_names;
 	private Thread thread;
 	private BufferedImage image;
 	private int[] pixels;
@@ -77,7 +78,7 @@ public class Game extends JFrame implements Runnable {
 			gamepixels = new int[game_width*game_width];
 			screen = new Screen(layer0, layer1, event_data, MAX_WORLD_LIMIT, allTextures, game_width, game_height,
 					fog_col, skyboxId, skySelfMovement, renderDistance, world_light_factor, pixels,
-					camera, renderSpriteDist, SCREEN_W, SCREEN_H, gamepixels);
+					camera, renderSpriteDist, SCREEN_W, SCREEN_H, gamepixels, event_data_names);
 			addKeyListener(camera);
 			setSize(SCREEN_W, SCREEN_H);
 			setResizable(false);
@@ -132,7 +133,7 @@ public class Game extends JFrame implements Runnable {
 			lastTime = now;
 			while (delta >= 1) {
 				screen.update(frame_num);
-				camera.update(layer0, layer1, event_data);
+				camera.update(layer0, layer1);
 				frame_num++;
 				delta--;
 			}
@@ -181,6 +182,7 @@ public class Game extends JFrame implements Runnable {
 			layer0 = new String[MAX_WORLD_LIMIT][MAX_WORLD_LIMIT];
 			layer1 = new String[MAX_WORLD_LIMIT][MAX_WORLD_LIMIT];
 			event_data = null;
+			event_data_names = null;
 			for (int i = 0; i < worlds_data.length(); i++) {
 				JSONObject world_data = worlds_data.getJSONObject(i);
 				world_name = world_data.getString("VAR0").split(":")[1];
@@ -205,6 +207,7 @@ public class Game extends JFrame implements Runnable {
 						}
 					}
 					event_data = world_data.getString("VAR9").split(":")[1].split(",");
+					event_data_names = world_data.getString("VAR11").split(":")[1].split(",");
 					break;
 				}
 			}

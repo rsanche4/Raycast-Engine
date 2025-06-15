@@ -1,0 +1,1 @@
+After doing, make sure to go to worlds_data.json and you have to scroll to the bottom and add one more variable, which is the name of the scripts themselves. For now, this is done manually. Each name corresponds to the index of where it's at.

@@ -4,6 +4,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Random;
+
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
@@ -15,6 +17,7 @@ public class Screen {
 	private String[][] layer0;
 	private String[][] layer1;
 	private String[] event_data;
+	private String[] event_data_names;
 	private int mapWidth;
 	private int mapHeight;
 	private HashMap<String, Texture> textures;
@@ -46,10 +49,11 @@ public class Screen {
 	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
 			HashMap<String, Texture> allTextures, int game_width, int game_height, int fog_col,
 			String skyboxId, boolean skySelfMovement, int renderDistance, double world_light_factor, int[] pixels,
-			Camera camera, int renderSpriteDistance, int SCREEN_W, int SCREEN_H, int[] gamepixels) {
+			Camera camera, int renderSpriteDistance, int SCREEN_W, int SCREEN_H, int[] gamepixels, String[] event_data_names) {
 		this.layer0 = layer0;
 		this.layer1 = layer1;
 		this.event_data = event_data;
+		this.event_data_names = event_data_names;
 		BUFFER_DIST = camera.BUFFER_DISTANCE;
 		mapWidth = MAX_WORLD_LIMIT;
 		mapHeight = MAX_WORLD_LIMIT;
@@ -561,47 +565,44 @@ public class Screen {
 
 	public void endScript(String script_name) {
 		ArrayList<String> eventList = new ArrayList<>(Arrays.asList(event_data));
+		ArrayList<String> eventListNames = new ArrayList<>(Arrays.asList(event_data_names));
+		int j = 0;
 		for (int i = 0; i < event_data.length; i = i + 3) {
-			if (event_data[i].equals(script_name)) {
+			if (event_data_names[j].equals(script_name)) {
 				eventList.remove(i);
 				eventList.remove(i);
 				eventList.remove(i);
+				eventListNames.remove(j);
 				break;
 			}
+			j++;
 		}
 		event_data = eventList.toArray(new String[0]);
-	}
-	
-	public void endScriptByPosition(String script_name, double posx, double posy) {
-		ArrayList<String> eventList = new ArrayList<>(Arrays.asList(event_data));
-		for (int i = 0; i < event_data.length; i = i + 3) {
-			if (event_data[i].equals(script_name) && event_data[i+1].equals(Double.toString(posx)) && event_data[i+2].equals(Double.toString(posy))) {
-				eventList.remove(i);
-				eventList.remove(i);
-				eventList.remove(i);
-				break;
-			}
-		}
-		event_data = eventList.toArray(new String[0]);
+		event_data_names = eventListNames.toArray(new String[0]);
 	}
 
-	public void addScript(String script_name, double pos_x, double pos_y) {
+	public void addScript(String script_name, double pos_x, double pos_y, String actual_script) {
 		String eventXstr = Double.toString(pos_x);
 		String eventYstr = Double.toString(pos_y);
 		ArrayList<String> eventList = new ArrayList<>(Arrays.asList(event_data));
-		eventList.add(script_name);
+		ArrayList<String> eventListNames = new ArrayList<>(Arrays.asList(event_data_names));
+		eventListNames.add(script_name);
+		eventList.add(actual_script);
 		eventList.add(eventXstr);
 		eventList.add(eventYstr);
 		event_data = eventList.toArray(new String[0]);
+		event_data_names = eventListNames.toArray(new String[0]);
 	}
 	
 	public void updateScriptPositionInMap(String script_name, double originalposx, double originalposy, double newposx, double newposy) {
+		int j = 0;
 		for (int i = 0; i < event_data.length; i = i + 3) {
-			if (event_data[i].equals(script_name) && event_data[i+1].equals(Double.toString(originalposx)) && event_data[i+2].equals(Double.toString(originalposy))) {
+			if (event_data_names[j].equals(script_name) && event_data[i+1].equals(Double.toString(originalposx)) && event_data[i+2].equals(Double.toString(originalposy))) {
 				event_data[i+1] = Double.toString(newposx);
 				event_data[i+2] = Double.toString(newposy);
 				break;
 			}
+			j++;
 		}
 	}
 
@@ -688,27 +689,30 @@ public class Screen {
 		System.exit(0);
 	}
 	
-	public void writeTempVar(String key, Object val) {
+	public void writeVar(String key, Object val) {
 		user_temp_variables.put(key, val);
 	}
 	
-	public Object readTempVar(String key) {
+	public Object readVar(String key) {
 		return user_temp_variables.get(key);
 	}
 	
-	public void add_entity(String entityid, String spritename, double pos_x, double pos_y, String behavior_script) {
+	public void add_entity(String entityid, String spritename, double pos_x, double pos_y, String script) {		
+		if (read_entity_limit()<=read_entity_count()) {
+			return;
+		}
 		ArrayList<Sprite> spriteListTemp = new ArrayList<>(Arrays.asList(spriteArr));
-		Sprite newSprite = new Sprite(spritename, pos_x, pos_y, entityid, behavior_script);
+		Sprite newSprite = new Sprite(spritename, pos_x, pos_y, entityid, script);
 		spriteListTemp.add(newSprite);
 		spriteArr = spriteListTemp.toArray(new Sprite[0]);
-		addScript(behavior_script, pos_x, pos_y);
+		addScript(entityid, pos_x, pos_y, script);
 		entity_count++;
 	}
 	
 	public int edit_entity(String entityid, String spritename, double pos_x, double pos_y) {
 	    for (int i = spriteArr.length - 1; i >= 0; i--) {
 	        if (spriteArr[i].getSpriteId().equals(entityid)) {
-	        	updateScriptPositionInMap(get_entity_behavior_script(entityid), spriteArr[i].spriteXPos, spriteArr[i].spriteYPos, pos_x, pos_y);
+	        	updateScriptPositionInMap(entityid, spriteArr[i].spriteXPos, spriteArr[i].spriteYPos, pos_x, pos_y);
 	        	spriteArr[i].spritename = spritename;
 	            spriteArr[i].spriteXPos = pos_x;
 	            spriteArr[i].spriteYPos = pos_y;
@@ -716,15 +720,6 @@ public class Screen {
 	        }
 	    }
 		return -1;
-	}
-	
-	public String get_entity_id_by_position(double posx, double posy) {
-		for (int i = spriteArr.length - 1; i >= 0; i--) {
-			if (spriteArr[i].spriteXPos==posx && spriteArr[i].spriteYPos==posy) {
-				return spriteArr[i].getSpriteId();
-			}
-		}
-		return null;
 	}
 	
 	public double get_entity_pos_x(String entityid) {
@@ -763,7 +758,10 @@ public class Screen {
 	    return null;
 	}
 	
-	public void remove_entity(String entityid, String script_name) {
+	public void remove_entity(String entityid) {
+		if (read_entity_count()<=0) {
+			return;
+		}
 		ArrayList<Sprite> spriteListTemp = new ArrayList<>(Arrays.asList(spriteArr));
 	    for (int i = spriteListTemp.size() - 1; i >= 0; i--) {
 	        if (spriteListTemp.get(i).getSpriteId().equals(entityid)) {
@@ -772,7 +770,7 @@ public class Screen {
 	        }
 	    }
 	    spriteArr = spriteListTemp.toArray(new Sprite[0]);
-	    endScript(script_name);
+	    endScript(entityid);
 	    entity_count--;
 	}
 	
@@ -823,6 +821,7 @@ public class Screen {
 		return BUFFER_DIST;
 	}
 	
+	// TODO make it so its BFS not just whatever this is, and efficient BFS do not search in n times, implement a key val thing so its really fast to get the first 
 	public String pathfindToward(String entityid, double source_x, double source_y, double targetx, double targety, double speed) {
 		if (Math.abs(targety-source_y)<BUFFER_DIST && Math.abs(targetx-source_x)<BUFFER_DIST) {
 			return source_x + "," + source_y;
@@ -895,6 +894,11 @@ public class Screen {
 	
 	public int maxInt(int a, int b) {
 		return Math.max(a, b);
+	}
+	
+	public int randomInt(int a, int b) {
+	    Random rand = new Random();
+	    return rand.nextInt(b - a + 1) + a;
 	}
 	
 	public void displayText(String text, int pos_x, int pos_y, String fontfile) {
@@ -970,16 +974,19 @@ public class Screen {
 	}
 
 	private void run_user_scripts() {
+		int j = 0;
 		for (int i = 0; i < event_data.length; i += 3) {
 			try {
 				Globals globals = JsePlatform.standardGlobals();
 				globals.set("REAPI", CoerceJavaToLua.coerce(this));
 				globals.load(new FileReader("data/" + event_data[i]), "data/" + event_data[i]).call(
 						LuaValue.valueOf(Double.parseDouble(event_data[i + 1])),
-						LuaValue.valueOf(Double.parseDouble(event_data[i + 2])));
+						LuaValue.valueOf(Double.parseDouble(event_data[i + 2])),
+						LuaValue.valueOf(event_data_names[j]));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			j++;
 		}
 	}
 }

@@ -1,103 +1,104 @@
 local event_x = ...
 local event_y = select(2, ...)
+local event_name = select(3, ...)
 
-local score_limit = 1
+local score_limit = 99999999
 local gun_pixel_down_animation = 20
 local reload_delay = 30
 
-if REAPI:readTempVar("isGame")==1 then
-    if REAPI:readTempVar("ammo")==7 then
+if REAPI:readVar("isGame")==1 then
+    if REAPI:readVar("ammo")==7 then
         REAPI:addUIToScreen("ammo7.png", 187, 4, 255)
         REAPI:addUIToScreen("crosshair.png", 0, 0, 255)
-    elseif REAPI:readTempVar("ammo")==6 then
+    elseif REAPI:readVar("ammo")==6 then
         REAPI:addUIToScreen("ammo6.png", 187, 4, 255)
         REAPI:addUIToScreen("crosshair.png", 0, 0, 255)
-    elseif REAPI:readTempVar("ammo")==5 then
+    elseif REAPI:readVar("ammo")==5 then
         REAPI:addUIToScreen("ammo5.png", 187, 4, 255)
         REAPI:addUIToScreen("crosshair.png", 0, 0, 255)
-    elseif REAPI:readTempVar("ammo")==4 then
+    elseif REAPI:readVar("ammo")==4 then
         REAPI:addUIToScreen("ammo4.png", 187, 4, 255)
         REAPI:addUIToScreen("crosshair.png", 0, 0, 255)
-    elseif REAPI:readTempVar("ammo")==3 then
+    elseif REAPI:readVar("ammo")==3 then
         REAPI:addUIToScreen("ammo3.png", 187, 4, 255)
         REAPI:addUIToScreen("crosshair.png", 0, 0, 255)
-    elseif REAPI:readTempVar("ammo")==2 then
+    elseif REAPI:readVar("ammo")==2 then
         REAPI:addUIToScreen("ammo2.png", 187, 4, 255)
         REAPI:addUIToScreen("crosshair.png", 0, 0, 255)
-    elseif REAPI:readTempVar("ammo")==1 then
+    elseif REAPI:readVar("ammo")==1 then
         REAPI:addUIToScreen("ammo1.png", 187, 4, 255)
         REAPI:addUIToScreen("crosshair.png", 0, 0, 255)
-    elseif (REAPI:readTempVar("ammo")==0 and REAPI:getFrameNumber()%10<5) then
+    elseif (REAPI:readVar("ammo")==0 and REAPI:getFrameNumber()%10<5) then
         REAPI:displayText("RELOAD", 104, 124, "font_8px.png")
-        if REAPI:readTempVar("playReloadSEonce")==0 then
+        if REAPI:readVar("playReloadSEonce")==0 then
             REAPI:playSE("reloadnowwarn.wav", false)
         end
-        if REAPI:readTempVar("playReloadSEonce")>=10 then
-            REAPI:writeTempVar("playReloadSEonce", -1)
+        if REAPI:readVar("playReloadSEonce")>=10 then
+            REAPI:writeVar("playReloadSEonce", -1)
         end
-        REAPI:writeTempVar("playReloadSEonce", REAPI:readTempVar("playReloadSEonce")+1)
+        REAPI:writeVar("playReloadSEonce", REAPI:readVar("playReloadSEonce")+1)
     end
 
-    if (REAPI:getKeyPressed("space") and REAPI:readTempVar("pressSpaceOnce")==1 and REAPI:readTempVar("ammo")>0 and REAPI:readTempVar("pressShiftOnce")==1) then
+    if (REAPI:getKeyPressed("space") and REAPI:readVar("pressSpaceOnce")==1 and REAPI:readVar("ammo")>0 and REAPI:readVar("pressShiftOnce")==1) then
         REAPI:playSE("pistol.wav", false)
         REAPI:addUIToScreen("gunshot0.png", 0, 0, 255)
-        REAPI:writeTempVar("pressSpaceOnce", 0)
-        REAPI:writeTempVar("ammo", REAPI:readTempVar("ammo")-1)
-        REAPI:writeTempVar("gunshotAnimation", 0)
-    elseif (REAPI:readTempVar("gunshotAnimation")==0) then
+        REAPI:writeVar("pressSpaceOnce", 0)
+        REAPI:writeVar("ammo", REAPI:readVar("ammo")-1)
+        REAPI:writeVar("gunshotAnimation", 0)
+    elseif (REAPI:readVar("gunshotAnimation")==0) then
         REAPI:addUIToScreen("gunshot1.png", 0, 0, 255)
-        REAPI:writeTempVar("gunshotAnimation", 1)
-    elseif (REAPI:readTempVar("gunshotAnimation")==1) then
+        REAPI:writeVar("gunshotAnimation", 1)
+    elseif (REAPI:readVar("gunshotAnimation")==1) then
         REAPI:addUIToScreen("gunshot2.png", 0, 0, 255)
-        REAPI:writeTempVar("gunshotAnimation", -1)
-    elseif (REAPI:getKeyReleased("space") and REAPI:readTempVar("pressSpaceOnce")==0) then
+        REAPI:writeVar("gunshotAnimation", -1)
+    elseif (REAPI:getKeyReleased("space") and REAPI:readVar("pressSpaceOnce")==0) then
         REAPI:addUIToScreen("gunidle.png", 0, 0, 255)
-        REAPI:writeTempVar("pressSpaceOnce", 1)
-    elseif (REAPI:getKeyPressed("shift") and REAPI:readTempVar("pressShiftOnce")==1 and REAPI:readTempVar("ammo")<7) then
+        REAPI:writeVar("pressSpaceOnce", 1)
+    elseif (REAPI:getKeyPressed("shift") and REAPI:readVar("pressShiftOnce")==1 and REAPI:readVar("ammo")<7) then
         REAPI:playSE("clippin.wav", false)
-        REAPI:writeTempVar("pressShiftOnce", 0)
+        REAPI:writeVar("pressShiftOnce", 0)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation, 255)
-        REAPI:writeTempVar("ReloadDelay", 0)
-    elseif (REAPI:readTempVar("pressShiftOnce")==0 and REAPI:readTempVar("ammo")<7 and REAPI:readTempVar("ReloadDelay")==reload_delay) then
-        REAPI:writeTempVar("ammo", REAPI:readTempVar("ammo")+1)
+        REAPI:writeVar("ReloadDelay", 0)
+    elseif (REAPI:readVar("pressShiftOnce")==0 and REAPI:readVar("ammo")<7 and REAPI:readVar("ReloadDelay")==reload_delay) then
+        REAPI:writeVar("ammo", REAPI:readVar("ammo")+1)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation*2, 255)
-    elseif (REAPI:readTempVar("pressShiftOnce")==0 and REAPI:readTempVar("ammo")<7 and REAPI:readTempVar("ReloadDelay")<reload_delay) then
-        REAPI:writeTempVar("ReloadDelay", REAPI:readTempVar("ReloadDelay")+1)
+    elseif (REAPI:readVar("pressShiftOnce")==0 and REAPI:readVar("ammo")<7 and REAPI:readVar("ReloadDelay")<reload_delay) then
+        REAPI:writeVar("ReloadDelay", REAPI:readVar("ReloadDelay")+1)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation*2, 255)
-    elseif (REAPI:readTempVar("pressShiftOnce")==0 and REAPI:readTempVar("ammo")==7) then
-        REAPI:writeTempVar("pressShiftOnce", 1)
+    elseif (REAPI:readVar("pressShiftOnce")==0 and REAPI:readVar("ammo")==7) then
+        REAPI:writeVar("pressShiftOnce", 1)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation, 255)
-    elseif (REAPI:readTempVar("pressShiftOnce")==1) then
+    elseif (REAPI:readVar("pressShiftOnce")==1) then
         REAPI:addUIToScreen("gunidle.png", 0, 0, 255)
     end
     
-    if (REAPI:readTempVar("health")==0) then
-        REAPI:writeTempVar("isGameOver", 1)
-        REAPI:writeTempVar("isGame", 0)
-    elseif (REAPI:readTempVar("health")<=2) then
+    if (REAPI:readVar("health")==0) then
+        REAPI:writeVar("isGameOver", 1)
+        REAPI:writeVar("isGame", 0)
+    elseif (REAPI:readVar("health")<=2) then
         REAPI:addUIToScreen("blood_overlay_3.png", 0, 0, 255)
-    elseif (REAPI:readTempVar("health")<=4) then
+    elseif (REAPI:readVar("health")<=4) then
         REAPI:addUIToScreen("blood_overlay_2.png", 0, 0, 200)
-    elseif (REAPI:readTempVar("health")<=6) then
+    elseif (REAPI:readVar("health")<=6) then
         REAPI:addUIToScreen("blood_overlay_1.png", 0, 0, 140)
-    elseif (REAPI:readTempVar("health")<=8) then
+    elseif (REAPI:readVar("health")<=8) then
         REAPI:addUIToScreen("blood_overlay_0.png", 0, 0, 75)
     end
 
-    local current_health = "health" .. REAPI:readTempVar("health") .. ".png"
+    local current_health = "health" .. REAPI:readVar("health") .. ".png"
     REAPI:addUIToScreen(current_health, 4, 228, 255)
     
-    local score_to_show = REAPI:padWithLeadingZeros(REAPI:readTempVar("score"), 8)
+    local score_to_show = REAPI:padWithLeadingZeros(REAPI:readVar("score"), 8)
     REAPI:displayText(score_to_show, 50, 10, "font_16px.png")
     
     REAPI:addUIToScreen("ui.png", 0, 0, 255)
 
 end
 
-if REAPI:readTempVar("score") >= score_limit then
-    if REAPI:readTempVar("playGameOverOnce")==1 then
-        REAPI:writeTempVar("playGameOverOnce", 0)
-        REAPI:writeTempVar("isGame", 0)
+if REAPI:readVar("score") >= score_limit then
+    if REAPI:readVar("playGameOverOnce")==1 then
+        REAPI:writeVar("playGameOverOnce", 0)
+        REAPI:writeVar("isGame", 0)
         REAPI:stopBGM()
         REAPI:playBGM("secretending.wav", true)
     end
@@ -119,17 +120,26 @@ if REAPI:readTempVar("score") >= score_limit then
     REAPI:displayText("FIN", 5, 240, "font_16px.png")
 end
 
-if REAPI:readTempVar("isGameOver")==1 then
+if REAPI:readVar("isGameOver")==1 then
     REAPI:stopBGM()
     REAPI:addUIToScreen("blood_overlay_4.png", 0, 0, 255)
-    if REAPI:readTempVar("playGameOverOnce")==1 then
+    if REAPI:readVar("playGameOverOnce")==1 then
         REAPI:playSE("gameover.wav", false)
-        REAPI:writeTempVar("playGameOverOnce", 0)
+        REAPI:writeVar("playGameOverOnce", 0)
     end
     if REAPI:getFrameNumber()%10<5 then
         REAPI:displayText("R. I. P.", 64, 100, "font_16px.png")
     end
-    local score_to_show = "Killcount: " .. REAPI:padWithLeadingZeros(REAPI:readTempVar("score"), 8)
+    local score_to_show = "Killcount: " .. REAPI:padWithLeadingZeros(REAPI:readVar("score"), 8)
     REAPI:displayText(score_to_show, 52, 128, "font_8px.png")
+
+    if REAPI:getKeyPressed("enter") then
+        REAPI:endScript("director.lua")
+        REAPI:addScript("var_init.lua", 0, 1, "var_init.lua")
+        REAPI:addScript("intro.lua", 0, 2, "intro.lua")
+        REAPI:addScript("mainmenu.lua", 0, 3, "mainmenu.lua")
+        REAPI:addScript("director.lua", 0, 4, "director.lua")
+        REAPI:addScript("splashscreen.lua", 0, 5, "splashscreen.lua")
+    end
 end
 

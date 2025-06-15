@@ -1,14 +1,78 @@
 local event_x = ...
 local event_y = select(2, ...)
+local event_name = select(3, ...)
 
-if REAPI:readTempVar("isGame") == 1 then
-    local base_x = 250.5
-    local base_y = 255
-    for i = 0, 0 do
-        local zombie_id = "zombie_" .. i
-        local sprite = "sprite_zom_walk0_femalestudent1.png"
-        local script = "common_female" .. i .. ".lua"
-        REAPI:add_entity(zombie_id, sprite, base_x, base_y + i, script)
+local spawn_points = {{233, 244},{234, 264},{234, 278},{235, 224},{243, 213},{254, 222},{262, 222},{266, 226},{261, 228},{254, 228},{251, 243},{254, 265},{243, 290},{252, 290},{262, 278},{266, 267},{266, 252},{266, 238}}
+local spawn_points_len = #spawn_points
+local population_array = {"sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent0.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent1.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_femalestudent2.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent0.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent1.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_malestudent2.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_femaleteacher.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_jock.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png", "sprite_zom_walk0_maleteacher.png"}
+
+if REAPI:readVar("isGame") == 1 then
+    local remaining = REAPI:readVar("directorVarZ")
+    if remaining > 0 then
+        local spawn_count = REAPI:minInt(remaining, REAPI:read_entity_limit()-REAPI:read_entity_count())
+        if spawn_count>0 then
+            local spawn_cur = {0, 0}
+            local spawn_second = {0, 0}
+            local spawn_third = {0, 0}
+            local cur_max_dist = 99999999
+            local second_cur_max_dist = 99999999
+            local third_cur_max_dist = 99999999
+            for i = 1, spawn_points_len do
+                local spoint = spawn_points[i]
+                local cur_dist = REAPI:manhattan_distance(REAPI:getPlayerX(), spoint[1], REAPI:getPlayerY(), spoint[2])
+                if cur_dist < cur_max_dist then
+                    third_cur_max_dist = second_cur_max_dist
+                    spawn_third[1] = spawn_second[1]
+                    spawn_third[2] = spawn_second[2]
+                    
+                    second_cur_max_dist = cur_max_dist
+                    spawn_second[1] = spawn_cur[1]
+                    spawn_second[2] = spawn_cur[2]
+                    
+                    cur_max_dist = cur_dist
+                    spawn_cur[1] = spoint[1]
+                    spawn_cur[2] = spoint[2]
+                elseif cur_dist < second_cur_max_dist then
+                    third_cur_max_dist = second_cur_max_dist
+                    spawn_third[1] = spawn_second[1]
+                    spawn_third[2] = spawn_second[2]
+                    
+                    second_cur_max_dist = cur_dist
+                    spawn_second[1] = spoint[1]
+                    spawn_second[2] = spoint[2]
+                elseif cur_dist < third_cur_max_dist then
+                    third_cur_max_dist = cur_dist
+                    spawn_third[1] = spoint[1]
+                    spawn_third[2] = spoint[2]
+                end
+            end
+            for i = 1, spawn_count do
+                local top_3_spawns = {spawn_cur, spawn_second, spawn_third}
+                local rpind = REAPI:randomInt(1, #top_3_spawns)
+                local point = top_3_spawns[rpind]
+                local base_x = point[1] + 0.5
+                local base_y = point[2] + 0.5
+                local sprite = population_array[REAPI:randomInt(1, 100)]
+                local zombie_id = sprite .. REAPI:readVar("uuid")
+                REAPI:writeVar("uuid", REAPI:readVar("uuid")+1)
+                local script = ""
+                if (sprite=="sprite_zom_walk0_femalestudent0.png" or sprite=="sprite_zom_walk0_femalestudent1.png" or sprite=="sprite_zom_walk0_femalestudent2.png" or sprite=="sprite_zom_walk0_malestudent0.png" or sprite=="sprite_zom_walk0_malestudent1.png" or sprite=="sprite_zom_walk0_malestudent2.png") then
+                    script = "common_behavior.lua"
+                elseif sprite=="sprite_zom_walk0_femaleteacher.png" then
+                    script = "stunner_behavior.lua"
+                elseif sprite=="sprite_zom_walk0_maleteacher.png" then
+                    script = "hitter_behavior.lua"
+                else
+                    script = "rusher_behavior.lua"
+                end
+                REAPI:add_entity(zombie_id, sprite, base_x, base_y, script)
+            end
+            remaining = remaining - spawn_count
+            REAPI:writeVar("directorVarZ", remaining)
+        end
+    else
+        REAPI:writeVar("directorVarZInit", REAPI:readVar("directorVarZInit")+REAPI:readVar("directorVarBeta"))
+        REAPI:writeVar("directorVarZ", REAPI:readVar("directorVarZInit"))
+        REAPI:writeVar("directorVarWaveCount", REAPI:readVar("directorVarWaveCount")+1)
     end
-    REAPI:endScript("director.lua")
 end

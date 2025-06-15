@@ -1,5 +1,6 @@
 local event_x = ...
 local event_y = select(2, ...)
+local event_name = select(3, ...)
 
 local splash_frames = {
     "splash_00.png", "splash_01.png", "splash_02.png", "splash_03.png", "splash_04.png",
@@ -17,15 +18,16 @@ local splash_frames = {
     "splash_60.png"
 }
 
-if REAPI:readTempVar("SplashScreen") == 1 then
+if REAPI:readVar("SplashScreen") == 1 then
     REAPI:addUIToScreen("black.png", 0, 0, 255)
-    if REAPI:readTempVar("splashScreenTime") >= 255 then
-        REAPI:writeTempVar("SplashScreen", 0)
-        REAPI:writeTempVar("isMenu", 1)
+    if REAPI:readVar("splashScreenTime") >= 255 then
+        REAPI:playBGM("menuBGM.wav", true)
+        REAPI:writeVar("SplashScreen", 0)
+        REAPI:writeVar("isMenu", 1)
         REAPI:endScript("splashscreen.lua")
     end
 
     local ind = (REAPI:getFrameNumber()%61)+1
-    REAPI:addUIToScreen(splash_frames[ind], 0, 0, 255-REAPI:minInt(255, REAPI:abs(REAPI:readTempVar("splashScreenTime"))))
-    REAPI:writeTempVar("splashScreenTime", REAPI:readTempVar("splashScreenTime")+2)
+    REAPI:addUIToScreen(splash_frames[ind], 0, 0, 255-REAPI:minInt(255, REAPI:abs(REAPI:readVar("splashScreenTime"))))
+    REAPI:writeVar("splashScreenTime", REAPI:readVar("splashScreenTime")+2)
 end
