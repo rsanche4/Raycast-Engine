@@ -10,7 +10,7 @@ REAPI:writeVar("isGameOver", 0)
 
 REAPI:writeVar("pressEnterOnce", 1)
 REAPI:writeVar("pressSpaceOnce", 1)
-REAPI:writeVar("pressShiftOnce", 1)
+REAPI:writeVar("pressCtrlOnce", 1)
 REAPI:writeVar("ammo", 7)
 REAPI:writeVar("health", 10)
 REAPI:writeVar("score", 0)

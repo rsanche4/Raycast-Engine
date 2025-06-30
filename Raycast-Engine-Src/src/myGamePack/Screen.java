@@ -384,7 +384,7 @@ public class Screen {
 			return true;
 		} else if (keyname.contains("space") && camera.space) {
 			return true;
-		} else if (keyname.contains("shift") && camera.shift) {
+		} else if (keyname.contains("ctrl") && camera.ctrl) {
 			return true;
 		}
 		return false;
@@ -403,7 +403,7 @@ public class Screen {
 			return true;
 		} else if (keyname.contains("space") && !camera.space) {
 			return true;
-		} else if (keyname.contains("shift") && !camera.shift) {
+		} else if (keyname.contains("ctrl") && !camera.ctrl) {
 			return true;
 		}
 		return false;

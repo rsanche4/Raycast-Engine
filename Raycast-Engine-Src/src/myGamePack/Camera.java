@@ -7,7 +7,7 @@ import java.awt.event.KeyListener;
 // Description: The class that allows for movement of the player when inputting keys. Main keys are detected here.
 public class Camera implements KeyListener {
 	public double xPos, yPos, xDir, yDir, xPlane, yPlane;
-	public boolean left, right, forward, back, enter, space, shift;
+	public boolean left, right, forward, back, enter, space, ctrl;
 	public double MOVE_SPEED;
 	public double ROTATION_SPEED;
 	public double player_degree = 0;
@@ -51,8 +51,8 @@ public class Camera implements KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			space = true;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			shift = true;
+		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			ctrl = true;
 		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
@@ -79,8 +79,8 @@ public class Camera implements KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			space = false;
 		}
-		if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
-			shift = false;
+		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
+			ctrl = false;
 		}
 	}
 

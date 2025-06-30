@@ -39,7 +39,7 @@ if REAPI:readVar("isGame")==1 then
         REAPI:writeVar("playReloadSEonce", REAPI:readVar("playReloadSEonce")+1)
     end
 
-    if (REAPI:getKeyPressed("space") and REAPI:readVar("pressSpaceOnce")==1 and REAPI:readVar("ammo")>0 and REAPI:readVar("pressShiftOnce")==1) then
+    if (REAPI:getKeyPressed("space") and REAPI:readVar("pressSpaceOnce")==1 and REAPI:readVar("ammo")>0 and REAPI:readVar("pressCtrlOnce")==1) then
         REAPI:playSE("pistol.wav", false)
         REAPI:addUIToScreen("gunshot0.png", 0, 0, 255)
         REAPI:writeVar("pressSpaceOnce", 0)
@@ -54,21 +54,21 @@ if REAPI:readVar("isGame")==1 then
     elseif (REAPI:getKeyReleased("space") and REAPI:readVar("pressSpaceOnce")==0) then
         REAPI:addUIToScreen("gunidle.png", 0, 0, 255)
         REAPI:writeVar("pressSpaceOnce", 1)
-    elseif (REAPI:getKeyPressed("shift") and REAPI:readVar("pressShiftOnce")==1 and REAPI:readVar("ammo")<7) then
+    elseif (REAPI:getKeyPressed("ctrl") and REAPI:readVar("pressCtrlOnce")==1 and REAPI:readVar("ammo")<7) then
         REAPI:playSE("clippin.wav", false)
-        REAPI:writeVar("pressShiftOnce", 0)
+        REAPI:writeVar("pressCtrlOnce", 0)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation, 255)
         REAPI:writeVar("ReloadDelay", 0)
-    elseif (REAPI:readVar("pressShiftOnce")==0 and REAPI:readVar("ammo")<7 and REAPI:readVar("ReloadDelay")==reload_delay) then
+    elseif (REAPI:readVar("pressCtrlOnce")==0 and REAPI:readVar("ammo")<7 and REAPI:readVar("ReloadDelay")==reload_delay) then
         REAPI:writeVar("ammo", REAPI:readVar("ammo")+1)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation*2, 255)
-    elseif (REAPI:readVar("pressShiftOnce")==0 and REAPI:readVar("ammo")<7 and REAPI:readVar("ReloadDelay")<reload_delay) then
+    elseif (REAPI:readVar("pressCtrlOnce")==0 and REAPI:readVar("ammo")<7 and REAPI:readVar("ReloadDelay")<reload_delay) then
         REAPI:writeVar("ReloadDelay", REAPI:readVar("ReloadDelay")+1)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation*2, 255)
-    elseif (REAPI:readVar("pressShiftOnce")==0 and REAPI:readVar("ammo")==7) then
-        REAPI:writeVar("pressShiftOnce", 1)
+    elseif (REAPI:readVar("pressCtrlOnce")==0 and REAPI:readVar("ammo")==7) then
+        REAPI:writeVar("pressCtrlOnce", 1)
         REAPI:addUIToScreen("gunidle.png", 0, gun_pixel_down_animation, 255)
-    elseif (REAPI:readVar("pressShiftOnce")==1) then
+    elseif (REAPI:readVar("pressCtrlOnce")==1) then
         REAPI:addUIToScreen("gunidle.png", 0, 0, 255)
     end
     

@@ -3,7 +3,7 @@ local event_y = select(2, ...)
 local event_name = select(3, ...)
 
 local director_on = true
-if REAPI:readVar("score")==99999999 then
+if  (REAPI:readVar("health")<=0 or REAPI:readVar("score")==99999999) then
     director_on = false
 end
 
