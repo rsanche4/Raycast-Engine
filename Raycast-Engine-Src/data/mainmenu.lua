@@ -9,11 +9,11 @@ if REAPI:readVar("isMenu")==1 then
     end
     local fadein = REAPI:readVar("menuFadeIn")
     REAPI:addUIToScreen("menubg.png", 0, 0, fadein)
-    REAPI:addUIToScreen("girlmenu.png", fadein-255, 0, fadein)
+    REAPI:addUIToScreen("girlmenu.png", fadein-180, -16, fadein)
     REAPI:addUIToScreen("gametitle.png", 10, 265-fadein, fadein)
     
     if REAPI:getFrameNumber()%10<5 then
-        REAPI:displayText("Start", 260-REAPI:readVar("menuFadeIn"), 240, "font_16px.png")
+        REAPI:displayText("Start", 270-REAPI:readVar("menuFadeIn"), 218, "font_16px.png")
     end
 
     if (REAPI:getKeyPressed("enter") and REAPI:readVar("pressEnterOnce")==1) then

@@ -7,7 +7,7 @@ import java.awt.event.KeyListener;
 // Description: The class that allows for movement of the player when inputting keys. Main keys are detected here.
 public class Camera implements KeyListener {
 	public double xPos, yPos, xDir, yDir, xPlane, yPlane;
-	public boolean left, right, forward, back, enter, space, ctrl;
+	public boolean left, right, forward, back, enter, space, ctrl, strafeleft, straferight;
 	public double MOVE_SPEED;
 	public double ROTATION_SPEED;
 	public double player_degree = 0;
@@ -54,6 +54,12 @@ public class Camera implements KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
 			ctrl = true;
 		}
+		if (e.getKeyCode() == KeyEvent.VK_COMMA) {
+			strafeleft = true;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_PERIOD) {
+			straferight = true;
+		}
 		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
 			System.exit(0);
 		}
@@ -82,19 +88,25 @@ public class Camera implements KeyListener {
 		if (e.getKeyCode() == KeyEvent.VK_CONTROL) {
 			ctrl = false;
 		}
+		if (e.getKeyCode() == KeyEvent.VK_COMMA) {
+			strafeleft = false;
+		}
+		if (e.getKeyCode() == KeyEvent.VK_PERIOD) {
+			straferight = false;
+		}
 	}
 
 	public void update(String[][] layer0, String[][] layer1) {
 		if (forward) {
-			if (layer1[(int) (xPos + xDir * (MOVE_SPEED + BUFFER_DISTANCE))][(int) yPos].contains("sprite"))
+			if (layer1[(int) (xPos + xDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))][(int) yPos].contains("sprite"))
 				xPos += xDir * MOVE_SPEED;
-			if (layer1[(int) xPos][(int) (yPos + yDir * (MOVE_SPEED + BUFFER_DISTANCE))].contains("sprite"))
+			if (layer1[(int) xPos][(int) (yPos + yDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))].contains("sprite"))
 				yPos += yDir * MOVE_SPEED;
 		}
 		if (back) {
-			if (layer1[(int) (xPos - xDir * (MOVE_SPEED + BUFFER_DISTANCE))][(int) yPos].contains("sprite"))
+			if (layer1[(int) (xPos - xDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))][(int) yPos].contains("sprite"))
 				xPos -= xDir * MOVE_SPEED;
-			if (layer1[(int) xPos][(int) (yPos - yDir * (MOVE_SPEED + BUFFER_DISTANCE))].contains("sprite"))
+			if (layer1[(int) xPos][(int) (yPos - yDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))].contains("sprite"))
 				yPos -= yDir * MOVE_SPEED;
 		}
 		if (right) {
@@ -114,6 +126,28 @@ public class Camera implements KeyListener {
 			xPlane = xPlane * Math.cos(ROTATION_SPEED) - yPlane * Math.sin(ROTATION_SPEED);
 			yPlane = oldxPlane * Math.sin(ROTATION_SPEED) + yPlane * Math.cos(ROTATION_SPEED);
 			player_degree = (Math.toDegrees(Math.atan2(yDir, xDir)) + 270)%360;
+		}
+		if (strafeleft) {
+		    double strafeXDir = -yDir;
+		    double strafeYDir = xDir;
+		    double length = Math.sqrt(strafeXDir * strafeXDir + strafeYDir * strafeYDir);
+		    strafeXDir /= length;
+		    strafeYDir /= length;
+		    if (layer1[(int)(xPos + strafeXDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))][(int)yPos].contains("sprite"))
+		        xPos += strafeXDir * MOVE_SPEED;
+		    if (layer1[(int)xPos][(int)(yPos + strafeYDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))].contains("sprite"))
+		        yPos += strafeYDir * MOVE_SPEED;
+		}
+		if (straferight) {
+		    double strafeXDir = yDir;
+		    double strafeYDir = -xDir;
+		    double length = Math.sqrt(strafeXDir * strafeXDir + strafeYDir * strafeYDir);
+		    strafeXDir /= length;
+		    strafeYDir /= length;
+		    if (layer1[(int)(xPos + strafeXDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))][(int)yPos].contains("sprite"))
+		        xPos += strafeXDir * MOVE_SPEED;
+		    if (layer1[(int)xPos][(int)(yPos + strafeYDir * (MOVE_SPEED + BUFFER_DISTANCE+0.1))].contains("sprite"))
+		        yPos += strafeYDir * MOVE_SPEED;
 		}
 	}
 }

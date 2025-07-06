@@ -354,7 +354,7 @@ pygame.mixer.init()
 sound = pygame.mixer.Sound(".."+sep+"save.mp3")
 # Constants
 SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
-GRID_SIZE = 500
+GRID_SIZE = 0
 CELL_SIZE = 64
 VISIBLE_CELLS_X = SCREEN_WIDTH // CELL_SIZE
 VISIBLE_CELLS_Y = SCREEN_HEIGHT // CELL_SIZE
@@ -408,6 +408,13 @@ for j, allvars in enumerate(data["world_data"]):
                 
 if index_to_update!=-1:
     # we selected the world. Now let"s check if that world has a map cuz this is where we stored the map info
+
+    GRID_SIZE = int(data["world_data"][index_to_update]["VAR12"].split(":")[1])
+    # Create a grid with empty cells (0 means empty, 1 means occupied by image)
+    grid0 = [[NULL_IMAGE for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+    layer0_encoded = [["block00.png" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)] #this is for the images so i can store it in a place
+    grid1 = [[NULL_IMAGE for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
+    layer1_encoded = [["sprite0.png" for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
 
     print("Loading the world... this may take a few seconds.")
         
@@ -494,8 +501,8 @@ print("Finished loading your world!")
 grid = grid0
 selectedlayer = 0
 
-# Camera starting position (center of the map at 250, 250)
-camera_x, camera_y = 250, 250
+# Camera starting position (center of map)
+camera_x, camera_y = GRID_SIZE//2, GRID_SIZE//2
 
 # Bucket fill function
 def bucket_fill(grid, layer_encoded, start_x, start_y, selected_texture):
@@ -671,10 +678,11 @@ while running:
             # if layer0_encoded[grid_y][grid_x]=="block0.png" or layer1_encoded[grid_y][grid_x]=="sprite0.png":
             #     screen.blit(NULL_IMAGE, (x * CELL_SIZE, y * CELL_SIZE))  
             # else:  
-            screen.blit(grid[grid_y][grid_x], (x * CELL_SIZE, y * CELL_SIZE))
+            if grid_y < GRID_SIZE and grid_x < GRID_SIZE:
+                screen.blit(grid[grid_y][grid_x], (x * CELL_SIZE, y * CELL_SIZE))
 
-            if selectedlayer==1 and layer1_encoded[grid_y][grid_x]=="sprite0.png":
-                screen.blit(NULL_IMAGE, (x * CELL_SIZE, y * CELL_SIZE))
+                if selectedlayer==1 and layer1_encoded[grid_y][grid_x]=="sprite0.png":
+                    screen.blit(NULL_IMAGE, (x * CELL_SIZE, y * CELL_SIZE))
 
             if len(event_data)>=3 and selectedlayer==1:
                 

@@ -1,11 +1,16 @@
 package myGamePack;
 
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.luaj.vm2.Globals;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.lib.jse.CoerceJavaToLua;
@@ -45,11 +50,14 @@ public class Screen {
 	private int entity_limit = 30;
 	private int entity_count = 0;
 	private double BUFFER_DIST;
+	private boolean walllighting = true;
+	private String current_world;
 	
-	public Screen(String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
+	public Screen(String current_world, String[][] layer0, String[][] layer1, String[] event_data, int MAX_WORLD_LIMIT,
 			HashMap<String, Texture> allTextures, int game_width, int game_height, int fog_col,
 			String skyboxId, boolean skySelfMovement, int renderDistance, double world_light_factor, int[] pixels,
 			Camera camera, int renderSpriteDistance, int SCREEN_W, int SCREEN_H, int[] gamepixels, String[] event_data_names) {
+		this.current_world = current_world;
 		this.layer0 = layer0;
 		this.layer1 = layer1;
 		this.event_data = event_data;
@@ -128,15 +136,18 @@ public class Screen {
 				} else if (row > max_row) {
 					break;
 				}
-				int rc = (int) ((fog_perc) * ((fog_color & 0xFF0000) >> 16)
-						+ (1 - fog_perc) * ((sky.pixels[skybox_x + width * 4 * skybox_y] & 0xFF0000) >> 16));
-				int gc = (int) ((fog_perc) * ((fog_color & 0xFF00) >> 8)
-						+ (1 - fog_perc) * ((sky.pixels[skybox_x + width * 4 * skybox_y] & 0xFF00) >> 8));
-				int bc = (int) ((fog_perc) * ((fog_color & 0xFF))
-						+ (1 - fog_perc) * ((sky.pixels[skybox_x + width * 4 * skybox_y] & 0xFF)));
-				new_fog_color_ceiling = ((rc & 0x0ff) << 16) | ((gc & 0x0ff) << 8) | (bc & 0x0ff);
-				pixels[n] = darkenColor(new_fog_color_ceiling, darkened_factor);
-				skybox_x++;
+				
+				if (skybox_x + width * 4 * skybox_y > 0) {
+					int rc = (int) ((fog_perc) * ((fog_color & 0xFF0000) >> 16)
+							+ (1 - fog_perc) * ((sky.pixels[skybox_x + width * 4 * skybox_y] & 0xFF0000) >> 16));
+					int gc = (int) ((fog_perc) * ((fog_color & 0xFF00) >> 8)
+							+ (1 - fog_perc) * ((sky.pixels[skybox_x + width * 4 * skybox_y] & 0xFF00) >> 8));
+					int bc = (int) ((fog_perc) * ((fog_color & 0xFF))
+							+ (1 - fog_perc) * ((sky.pixels[skybox_x + width * 4 * skybox_y] & 0xFF)));
+					new_fog_color_ceiling = ((rc & 0x0ff) << 16) | ((gc & 0x0ff) << 8) | (bc & 0x0ff);
+					pixels[n] = darkenColor(new_fog_color_ceiling, darkened_factor);
+					skybox_x++;
+				}
 			}
 		}
 		double[] perp_wall_dist_buffer = new double[width];
@@ -178,7 +189,7 @@ public class Screen {
 					mapY += stepY;
 					side = 1;
 				}
-				if (layer1[mapX][mapY].contains("block"))
+				if (layer1[mapX][mapY].contains("block") && !layer1[mapX][mapY].contains("blockTRANSPARENT"))
 					hit = true;
 			}
 			if (side == 0)
@@ -216,11 +227,13 @@ public class Screen {
 				texX = texBlock.SIZE - texX - 1;
 			for (int y = drawStart; y < drawEnd; y++) {
 				int texY = (((y * 2 - height + lineHeight) << 6) / lineHeight) / 2;
-				int color;
-				if (side == 0)
+				int color = 0;
+				if (side == 0 || walllighting==false) {
 					color = texBlock.pixels[texX + (texY * texBlock.SIZE)];
-				else
+				}	
+				else if (walllighting) {
 					color = (texBlock.pixels[texX + (texY * texBlock.SIZE)] >> 1) & 0x7F7F7F;
+				}
 				double percd = perpWallDist / render_dist;
 				int rc = (int) ((percd) * ((fog_color & 0xFF0000) >> 16) + (1 - percd) * ((color & 0xFF0000) >> 16));
 				int gc = (int) ((percd) * ((fog_color & 0xFF00) >> 8) + (1 - percd) * ((color & 0xFF00) >> 8));
@@ -282,7 +295,9 @@ public class Screen {
 				int bcc = (int) ((percd_floor) * ((fog_color & 0xFF)) + (1 - percd_floor) * ((new_color_c & 0xFF)));
 				new_color_c = ((rcc & 0x0ff) << 16) | ((gcc & 0x0ff) << 8) | (bcc & 0x0ff);
 				if (in_doors) {
-					pixels[x + (height - y) * (width)] = darkenColor(new_color_c, darkened_factor);
+					if (x + (height - y) * (width) < width*height) {
+						pixels[x + (height - y) * (width)] = darkenColor(new_color_c, darkened_factor);
+					}
 				}
 			}
 		}
@@ -541,6 +556,10 @@ public class Screen {
 
 	public boolean getSkyboxWave() {
 		return sky_wave;
+	}
+	
+	public void setWallLighting(boolean turnon) {
+		walllighting = turnon;
 	}
 
 	public void setSkyboxWave(boolean wave) {
@@ -852,6 +871,89 @@ public class Screen {
         	return source_x + "," + newy;
         }
         return source_x + "," + source_y;
+	}
+	
+	public String getCurrentWorld() {
+		return current_world;
+	}
+	
+	public void transferToWorld(String world_name_to, int pos_x, int pos_y, double xd, double yd, double xp, double yp) {
+		try {
+			String content = "";
+			content = new String(Files.readAllBytes(Paths.get("data/worlds_data.json")));
+			JSONObject jsonObject = new JSONObject(content);
+			JSONArray worlds_data = jsonObject.getJSONArray("world_data");
+			String world_name = "";
+			double walking_speed = 0.0;
+			double turning_speed = 0.0;
+			event_data = null;
+			event_data_names = null;
+			for (int i = 0; i < worlds_data.length(); i++) {
+				JSONObject world_data = worlds_data.getJSONObject(i);
+				world_name = world_data.getString("VAR0").split(":")[1];
+				if (world_name.contentEquals(world_name_to)) {
+					mapWidth = Integer.parseInt(world_data.getString("VAR12").split(":")[1]);
+					mapHeight = mapWidth;
+					layer0 = new String[mapWidth][mapWidth];
+					layer1 = new String[mapWidth][mapWidth];
+					render_dist = Integer.parseInt(world_data.getString("VAR1").split(":")[1]);
+					sky_wave = Boolean.parseBoolean(world_data.getString("VAR2").split(":")[1]);
+					walking_speed = Double.parseDouble(world_data.getString("VAR3").split(":")[1]);
+					turning_speed = Double.parseDouble(world_data.getString("VAR4").split(":")[1]);
+					fog_color = Integer.parseInt(world_data.getString("VAR5").split(":")[1].substring(1), 16);
+					skyb = world_data.getString("VAR6").split(":")[1];
+					in_doors = skyb.contains("block") ? true : skyb.contains("skybox") ? false : false;
+					skybox_default = textures.get(skyb);
+					sprite_render_dist = Integer.parseInt(world_data.getString("VAR10").split(":")[1]);
+					String[] layer0_flat = world_data.getString("VAR7").split(":")[1].split(",");
+					for (int row = 0; row < mapWidth; row++) {
+						for (int col = 0; col < mapWidth; col++) {
+							layer0[row][col] = layer0_flat[row * mapWidth + col];
+						}
+					}
+					String[] layer1_flat = world_data.getString("VAR8").split(":")[1].split(",");
+					for (int row = 0; row < mapWidth; row++) {
+						for (int col = 0; col < mapWidth; col++) {
+							layer1[row][col] = layer1_flat[row * mapWidth + col];
+						}
+					}
+					event_data = world_data.getString("VAR9").split(":")[1].split(",");
+					event_data_names = world_data.getString("VAR11").split(":")[1].split(",");
+					current_world = world_name_to;
+					Game.current_world = world_name_to;
+					Game.layer0 = layer0;
+					Game.layer1 = layer1;
+					Game.MAX_WORLD_LIMIT = mapWidth;
+					Game.event_data = this.event_data;
+					Game.event_data_names = this.event_data_names;
+					
+					spriteArrTemp = new ArrayList<Sprite>();
+					int spriteIdTemp = 0;
+					for (int o = 0; o < layer1.length; o++) {
+						for (int j = 0; j < layer1[o].length; j++) {
+							if (!layer1[o][j].contains("sprite0") && !layer1[o][j].contains("block")) {
+								spriteArrTemp.add(new Sprite(layer1[o][j], (double) o+0.5, (double) j+0.5, String.valueOf(spriteIdTemp), "null.lua"));
+								spriteIdTemp++;
+							}
+						}
+					}
+					spriteArr = new Sprite[spriteArrTemp.size()];
+					int k = 0;
+					for (Sprite sprite : spriteArrTemp) {
+						spriteArr[k] = sprite;
+						k++;
+					}
+					break;
+				}
+			}
+			setMoveSpeed(walking_speed);
+			setRotationSpeed(turning_speed);
+	        setPlayerX(pos_x);
+	        setPlayerY(pos_y);
+	        setPlayerDirection(xd, yd, xp, yp);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public double abs(double value) {

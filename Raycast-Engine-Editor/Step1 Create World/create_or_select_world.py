@@ -73,14 +73,15 @@ def upsert(entries, fog_color):
     
     if index_to_update==-1:
         
-        data["world_data"].append({f"VAR{i}": "" for i in range(11)})
-        data["world_data"][0]["VAR0"] = f"world_name:{entries["world_name"].get()}"
-        data["world_data"][0]["VAR1"] = f"render_distance:{entries["render_distance"].get()}"
-        data["world_data"][0]["VAR2"] = f"sky_self_movement:{entries["sky_self_movement"].get()}"
-        data["world_data"][0]["VAR3"] = f"walking_speed:{entries["walking_speed"].get()}"
-        data["world_data"][0]["VAR4"] = f"turning_speed:{entries["turning_speed"].get()}"
-        data["world_data"][0]["VAR5"] = f"fog_color:{fog_color}"
-        data["world_data"][0]["VAR10"] = f"sprite_distance:{entries["sprite_distance"].get()}"
+        data["world_data"].append({f"VAR{i}": "" for i in range(13)})
+        data["world_data"][len(data["world_data"])-1]["VAR0"] = f"world_name:{entries["world_name"].get()}"
+        data["world_data"][len(data["world_data"])-1]["VAR1"] = f"render_distance:{entries["render_distance"].get()}"
+        data["world_data"][len(data["world_data"])-1]["VAR2"] = f"sky_self_movement:{entries["sky_self_movement"].get()}"
+        data["world_data"][len(data["world_data"])-1]["VAR3"] = f"walking_speed:{entries["walking_speed"].get()}"
+        data["world_data"][len(data["world_data"])-1]["VAR4"] = f"turning_speed:{entries["turning_speed"].get()}"
+        data["world_data"][len(data["world_data"])-1]["VAR5"] = f"fog_color:{fog_color}"
+        data["world_data"][len(data["world_data"])-1]["VAR10"] = f"sprite_distance:{entries["sprite_distance"].get()}"
+        data["world_data"][len(data["world_data"])-1]["VAR12"] = f"world_size:{entries["world_size"].get()}"
 
 
         with open(worlds_data_path, "w") as file:
@@ -95,6 +96,8 @@ def upsert(entries, fog_color):
         data["world_data"][index_to_update]["VAR4"] = f"turning_speed:{entries["turning_speed"].get()}"
         data["world_data"][index_to_update]["VAR5"] = f"fog_color:{fog_color}"
         data["world_data"][index_to_update]["VAR10"] = f"sprite_distance:{entries["sprite_distance"].get()}"
+        data["world_data"][index_to_update]["VAR12"] = f"world_size:{entries["world_size"].get()}"
+        
             
         # Open a file in write mode ("w") and dump JSON data into it
         with open(worlds_data_path, "w") as file:
@@ -175,7 +178,8 @@ variables = {
     "sky_self_movement": bool,
     "walking_speed": float,
     "turning_speed": float,
-    "sprite_distance": int
+    "sprite_distance": int,
+    "world_size": int
 }
 
 # Loop to create widgets for each variable

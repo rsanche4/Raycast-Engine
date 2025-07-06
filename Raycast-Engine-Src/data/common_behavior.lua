@@ -2,7 +2,7 @@ local event_x = ...
 local event_y = select(2, ...)
 local event_name = select(3, ...)
 
-if (REAPI:readVar("health")<=0 or REAPI:readVar("score")==99999999) then
+if (REAPI:readVar("health")<=0 or REAPI:readVar("score")==999) then
     REAPI:remove_entity(event_name)
 end
 
