@@ -1,1 +1,1 @@
-block_wall.png
+sprite0.png

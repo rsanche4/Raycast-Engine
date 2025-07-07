@@ -309,58 +309,73 @@ public class Screen {
 		}
 		Arrays.sort(spriteArr);
 		for (int i = 0; i < numSprites; i++) {
-			double spriteX = (double) spriteArr[i].spriteXPos - camera.xPos;
-			double spriteY = (double) spriteArr[i].spriteYPos - camera.yPos;
-			double invDet = 1.0 / (camera.xPlane * camera.yDir - camera.xDir * camera.yPlane);
-			double transformX = invDet * (camera.yDir * spriteX - camera.xDir * spriteY);
-			double transformY = invDet * (-camera.yPlane * spriteX + camera.xPlane * spriteY);
-			int spriteScreenX = (int) ((width / 2) * (1 + transformX / transformY));
-			int spriteHeight = (int) (Math.abs((int) (height / (transformY))));
-			int drawStartY = -spriteHeight / 2 + height / 2;
-			if (drawStartY < 0)
-				drawStartY = 0;
-			int drawEndY = spriteHeight / 2 + height / 2;
-			if (drawEndY >= height)
-				drawEndY = height - 1;
-			int spriteWidth = (int) (Math.abs((int) (height / (transformY))));
-			int drawStartX = -spriteWidth / 2 + spriteScreenX;
-			if (drawStartX < 0)
-				drawStartX = 0;
-			int drawEndX = spriteWidth / 2 + spriteScreenX;
-			if (drawEndX >= width)
-				drawEndX = width - 1;
-			if (spriteArr[i].spriteDist > sprite_render_dist) {
-				drawStartX = 0;
-				drawEndX = 0;
-			}
-			for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
-				int texX = (int) (256 * (stripe - (-spriteWidth / 2 + spriteScreenX))
-						* spriteArr[i].getTexture(textures).SIZE / spriteWidth) / 256;
-				if (transformY > 0 && stripe > 0 && stripe < width && transformY < perp_wall_dist_buffer[stripe])
-					for (int y = drawStartY; y < drawEndY; y++) {
-						int d = (y) * 256 - height * 128 + spriteHeight * 128;
-						int texY = ((d * spriteArr[i].getTexture(textures).SIZE) / spriteHeight) / 256;
-						double angleInDegrees = Math.toDegrees(Math.atan2(spriteArr[i].spriteYPos - camera.yPos,
-								spriteArr[i].spriteXPos - camera.xPos));
-						if (angleInDegrees < 0) {
-							angleInDegrees += 360;
-						}
-						int direction = (int) ((angleInDegrees + 225) % 360 / 45);
-						int color = spriteArr[i].getTexture(textures).pixels[Math
-								.abs(texX + ((texY + spriteArr[i].getTexture(textures).SIZE * direction)
-										* spriteArr[i].getTexture(textures).SIZE))];
-						if (color != 0x000000) {
-							double percd = spriteArr[i].spriteDist / sprite_render_dist;
-							int rc = (int) ((percd) * ((fog_color & 0xFF0000) >> 16)
-									+ (1 - percd) * ((color & 0xFF0000) >> 16));
-							int gc = (int) ((percd) * ((fog_color & 0xFF00) >> 8)
-									+ (1 - percd) * ((color & 0xFF00) >> 8));
-							int bc = (int) ((percd) * ((fog_color & 0xFF)) + (1 - percd) * ((color & 0xFF)));
-							color = ((rc & 0x0ff) << 16) | ((gc & 0x0ff) << 8) | (bc & 0x0ff);
-							pixels[((stripe) + y * (width))] = darkenColor(color, darkened_factor);
-						}
-					}
-			}
+		    double spriteX = (double) spriteArr[i].spriteXPos - camera.xPos;
+		    double spriteY = (double) spriteArr[i].spriteYPos - camera.yPos;
+		    double invDet = 1.0 / (camera.xPlane * camera.yDir - camera.xDir * camera.yPlane);
+		    double transformX = invDet * (camera.yDir * spriteX - camera.xDir * spriteY);
+		    double transformY = invDet * (-camera.yPlane * spriteX + camera.xPlane * spriteY);
+		    int spriteScreenX = (int) ((width / 2) * (1 + transformX / transformY));
+		    
+		    // Calculate base sprite dimensions
+		    int baseSpriteHeight = (int) (Math.abs((int) (height / (transformY))));
+		    int baseSpriteWidth = (int) (Math.abs((int) (height / (transformY))));
+		    
+		    // SCALING: Apply scale factor
+		    double scaleFactor = 1.0; // Adjust this value (1.0 = normal size, 2.0 = double size)
+		    int spriteHeight = (int) (baseSpriteHeight * scaleFactor);
+		    int spriteWidth = (int) (baseSpriteWidth * scaleFactor);
+		    
+		    // VERTICAL OFFSET: Scale the offset by distance so it stays consistent
+		    double verticalOffsetWorld = 0.0; // World space offset (positive = up, negative = down)
+		    int verticalOffset = (int) (verticalOffsetWorld * height / transformY);
+		    
+		    int drawStartY = -spriteHeight / 2 + height / 2 - verticalOffset;
+		    if (drawStartY < 0)
+		        drawStartY = 0;
+		    int drawEndY = spriteHeight / 2 + height / 2 - verticalOffset;
+		    if (drawEndY >= height)
+		        drawEndY = height - 1;
+		    
+		    int drawStartX = -spriteWidth / 2 + spriteScreenX;
+		    if (drawStartX < 0)
+		        drawStartX = 0;
+		    int drawEndX = spriteWidth / 2 + spriteScreenX;
+		    if (drawEndX >= width)
+		        drawEndX = width - 1;
+		    
+		    if (spriteArr[i].spriteDist > sprite_render_dist) {
+		        drawStartX = 0;
+		        drawEndX = 0;
+		    }
+		    
+		    for (int stripe = drawStartX; stripe < drawEndX; stripe++) {
+		        int texX = (int) (256 * (stripe - (-spriteWidth / 2 + spriteScreenX))
+		                * spriteArr[i].getTexture(textures).SIZE / spriteWidth) / 256;
+		        if (transformY > 0 && stripe > 0 && stripe < width && transformY < perp_wall_dist_buffer[stripe])
+		            for (int y = drawStartY; y < drawEndY; y++) {
+		                int d = (y + verticalOffset) * 256 - height * 128 + spriteHeight * 128;
+		                int texY = ((d * spriteArr[i].getTexture(textures).SIZE) / spriteHeight) / 256;
+		                double angleInDegrees = Math.toDegrees(Math.atan2(spriteArr[i].spriteYPos - camera.yPos,
+		                        spriteArr[i].spriteXPos - camera.xPos));
+		                if (angleInDegrees < 0) {
+		                    angleInDegrees += 360;
+		                }
+		                int direction = (int) ((angleInDegrees + 225) % 360 / 45);
+		                int color = spriteArr[i].getTexture(textures).pixels[Math
+		                        .abs(texX + ((texY + spriteArr[i].getTexture(textures).SIZE * direction)
+		                                * spriteArr[i].getTexture(textures).SIZE))];
+		                if (color != 0x000000) {
+		                    double percd = spriteArr[i].spriteDist / sprite_render_dist;
+		                    int rc = (int) ((percd) * ((fog_color & 0xFF0000) >> 16)
+		                            + (1 - percd) * ((color & 0xFF0000) >> 16));
+		                    int gc = (int) ((percd) * ((fog_color & 0xFF00) >> 8)
+		                            + (1 - percd) * ((color & 0xFF00) >> 8));
+		                    int bc = (int) ((percd) * ((fog_color & 0xFF)) + (1 - percd) * ((color & 0xFF)));
+		                    color = ((rc & 0x0ff) << 16) | ((gc & 0x0ff) << 8) | (bc & 0x0ff);
+		                    pixels[((stripe) + y * (width))] = darkenColor(color, darkened_factor);
+		                }
+		            }
+		    }
 		}
 		run_user_scripts();
 		final float scale = Math.min(SCREEN_W / (float)width, SCREEN_H / (float)height);

@@ -7,3 +7,13 @@ The Raycast Engine is typically used in first-person perspective games or simula
 Let me show you a quick demo!
 
 [![Watch the video](https://img.youtube.com/vi/joDJuUwu1GY/0.jpg)](https://youtu.be/joDJuUwu1GY)
+
+Features in Future:
+- have sprite info of how high up vertically it should be part of the sprites info itself somehow weather it be the name or something and also of its scale whether we can scale them up or down
+- draw skybox completely on the screen if fog has been turned off
+- allow for us to not draw anything on wall if its black pixel so leave it as is (Thus giving the impression of an outside etc) and also do so for the floor if it has a black texture dont draw anything in it (thus this lets you see the skybox etc)
+- Solid sprites should be good so implement those
+- Allow for 128x128 textures too you choose btw 64 or 128
+- Translucent sprites too just cuz
+- And also allow for increasing and decreasing volume of music or sounds played (particularly useful for distance sound design thing)
+- Also you know what add the layer3, the ceiling, so its not the same through out. And add the ceiling the black pixel ability to show a sky type thing. Fine

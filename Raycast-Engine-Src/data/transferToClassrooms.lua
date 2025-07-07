@@ -6,5 +6,5 @@ if (REAPI:abs(REAPI:getPlayerX()-event_x)<1 and REAPI:abs(REAPI:getPlayerY()-eve
     REAPI:stopBGM()
     REAPI:playBGM("runshoot.wav", true)
     REAPI:setWallLighting(true)
-    REAPI:transferToWorld("ClassWorld", 1, 9, 1, 0, 0, -.66)
+    REAPI:transferToWorld("ClassWorld", 2, 9, 1, 0, 0, -.66)
 end
