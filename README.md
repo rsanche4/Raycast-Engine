@@ -18,3 +18,6 @@ Features in Future:
 - Translucent sprites too just cuz
 - And also allow for increasing and decreasing volume of music or sounds played (particularly useful for distance sound design thing)
 - Also you know what add the layer3, the ceiling, so its not the same through out. And add the ceiling the black pixel ability to show a sky type thing. Fine
+- Change the file structures so it makes more sense and it's a bit easier to follow
+
+- DSG project
