@@ -21,6 +21,8 @@ Features in Future:
 - Also you know what add the layer3, the ceiling, so its not the same through out. And add the ceiling the black pixel ability to show a sky type thing. Fine
 - Change the file structures so it makes more sense and it's a bit easier to follow
 - Oh improve pathfinding so its A* or close to it
+- Allow for Saving and Loading files
 - Rewrite if possible on C++ for speedup and stability
 - Rewrite editor in JS CSS HTML for stability as front end 
-- Honestly, Finish the trilogy! LWW(loss), IS(despair), DSG(acceptance) (polish all 3 of them so they make sense as a connected thing and publish on steam and get rid of polybius and blot dodge on moddb and put it on itch)
+- Publish DSG.exe
+- Remake Lola in this engine and give it a nicer ending and better storyline about acceptance
