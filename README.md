@@ -22,4 +22,5 @@ Features in Future:
 - Change the file structures so it makes more sense and it's a bit easier to follow
 - Oh improve pathfinding so its A* or close to it
 - Rewrite if possible on C++ for speedup and stability
+- Rewrite editor in JS CSS HTML for stability as front end 
 - Honestly, Finish the trilogy! LWW(loss), IS(despair), DSG(acceptance) (polish all 3 of them so they make sense as a connected thing and publish on steam and get rid of polybius and blot dodge on moddb and put it on itch)
