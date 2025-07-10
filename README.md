@@ -24,5 +24,3 @@ Features in Future:
 - Allow for Saving and Loading files
 - Rewrite if possible on C++ for speedup and stability
 - Rewrite editor in JS CSS HTML for stability as front end 
-- Publish DSG.exe
-- Remake Lola in this engine and give it a nicer ending and better storyline about acceptance
