@@ -15,10 +15,11 @@ Features in Future:
 - draw skybox completely on the screen if fog has been turned off
 - allow for us to not draw anything on wall if its black pixel so leave it as is (Thus giving the impression of an outside etc) and also do so for the floor if it has a black texture dont draw anything in it (thus this lets you see the skybox etc)
 - Solid sprites should be good so implement those
-- Allow for 128x128 textures too you choose btw 64 or 128
+- Allow for 128x128 textures too you choose btw 64 or 128 per map even if you would like
 - Translucent sprites too just cuz
 - And also allow for increasing and decreasing volume of music or sounds played (particularly useful for distance sound design thing)
 - Also you know what add the layer3, the ceiling, so its not the same through out. And add the ceiling the black pixel ability to show a sky type thing. Fine
 - Change the file structures so it makes more sense and it's a bit easier to follow
-
-- Release DSG on ModDB as exe
+- Oh improve pathfinding so its A* or close to it
+- Rewrite if possible on C++ for speedup and stability
+- Honestly, Finish the trilogy! LWW(loss), IS(despair), DSG(acceptance) (polish all 3 of them so they make sense as a connected thing and publish on steam and get rid of polybius and blot dodge on moddb and put it on itch)
