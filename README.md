@@ -10,6 +10,7 @@ Let me show you a quick demo!
 
 Features in Future:
 - Maybe with the help of AI and your own knowledge try to make it so you can have blocks and ceilings that extend higher universally. Textures can be changed to you could have multiple levels of textures etc. Only 2 levels should be enough but if we figure that out we can have many basically. So we can even stack them up even it should be fun.
+- You could do planes i guess, useful for fences and things like that, but also make them so that they can be big vertical and drawn like sprites thing, transparent with collision and also make them so they can be higher than universal ceiling height so u can do some cool structures with it
 - have sprite info of how high up vertically it should be part of the sprites info itself somehow weather it be the name or something and also of its scale whether we can scale them up or down
 - draw skybox completely on the screen if fog has been turned off
 - allow for us to not draw anything on wall if its black pixel so leave it as is (Thus giving the impression of an outside etc) and also do so for the floor if it has a black texture dont draw anything in it (thus this lets you see the skybox etc)
@@ -20,4 +21,4 @@ Features in Future:
 - Also you know what add the layer3, the ceiling, so its not the same through out. And add the ceiling the black pixel ability to show a sky type thing. Fine
 - Change the file structures so it makes more sense and it's a bit easier to follow
 
-- DSG project
+- Release DSG on ModDB as exe
