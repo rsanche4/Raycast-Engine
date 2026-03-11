@@ -47,7 +47,7 @@ public class Screen {
 	private HashMap<String, Object> user_temp_variables = new HashMap<>();
 	private int SCREEN_W;
 	private int SCREEN_H;
-	private int entity_limit = 30;
+	private int entity_limit = 8;
 	private int entity_count = 0;
 	private double BUFFER_DIST;
 	private boolean walllighting = true;
