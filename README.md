@@ -7,3 +7,5 @@ The Raycast Engine is typically used in first-person perspective games or simula
 Let me show you a quick demo!
 
 [![Watch the video](https://img.youtube.com/vi/H07ELBLRQ7M/0.jpg)](https://youtu.be/H07ELBLRQ7M)
+
+Note: In the current src files you will actually find a custom made fun arcade zombie shooter showcasing the engine! I had a lot of fun working on this demo game, so feel free to achieve the highest score, and will you see the secret ending after killing all 1000 zombies? Good luck!!
